@@ -1,0 +1,2543 @@
+<!DOCTYPE html>
+<html lang="en" data-vertical="clinic">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service detail — universal booking template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   1. DESIGN TOKENS — SINGLE SOURCE OF TRUTH
+   Every colour, font, radius and spacing value resolves from this block.
+   In production these are written per tenant from the Brand settings screen.
+   ========================================================================== */
+:root{
+  --brand:#245C4C; --brand-deep:#14332A; --brand-tint:#E8F0EC;
+  --accent:#F0B429; --accent-ink:#2A1F00;
+
+  --ink:#16241F; --ink-soft:#4C5D56; --ink-faint:#78877F;
+  --surface:#FFFFFF; --surface-alt:#F4F7F5; --line:#DCE4DF;
+  --star:#E8A33D;
+
+  --font-display:'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body:'Public Sans', system-ui, sans-serif;
+
+  --step--1:clamp(.82rem,.8rem + .1vw,.89rem);
+  --step-0: clamp(1rem,.96rem + .18vw,1.09rem);
+  --step-1: clamp(1.18rem,1.1rem + .35vw,1.4rem);
+  --step-2: clamp(1.45rem,1.3rem + .68vw,1.95rem);
+  --step-3: clamp(1.8rem,1.5rem + 1.3vw,2.7rem);
+  --step-4: clamp(2.2rem,1.7rem + 2.4vw,3.9rem);
+
+  --radius:14px; --radius-sm:9px; --radius-pill:999px;
+  --shadow-card:0 1px 2px rgba(16,36,30,.05), 0 8px 24px -12px rgba(16,36,30,.16);
+  --shadow-lift:0 2px 6px rgba(16,36,30,.07), 0 24px 48px -20px rgba(16,36,30,.28);
+
+  --container:1180px;
+  --gutter:clamp(1.1rem,4vw,2.5rem);
+  --section-y:clamp(3.5rem,7vw,6.5rem);
+}
+
+/* ============================================================================
+   2. VERTICAL PRESETS — only tokens change, never structure
+   ========================================================================== */
+[data-vertical="carwash"]{
+  --brand:#123A63; --brand-deep:#0A2340; --brand-tint:#E4EEF8;
+  --accent:#22C1E8; --accent-ink:#04222C;
+  --ink:#111E2C; --ink-soft:#47586A; --ink-faint:#78889A;
+  --surface-alt:#F1F5FA; --line:#DBE3EC;
+  --font-display:'Archivo', system-ui, sans-serif;
+  --radius:8px; --radius-sm:6px;
+}
+[data-vertical="legal"]{
+  --brand:#2B3550; --brand-deep:#171E30; --brand-tint:#ECEDF3;
+  --accent:#B08238; --accent-ink:#FFFFFF;
+  --ink:#1A1F2E; --ink-soft:#4E5468; --ink-faint:#7C8296;
+  --surface-alt:#F5F5F8; --line:#E0E1E8;
+  --font-display:'Fraunces', Georgia, serif;
+  --radius:4px; --radius-sm:3px; --radius-pill:4px;
+}
+[data-vertical="garden"]{
+  --brand:#3E6118; --brand-deep:#263C0E; --brand-tint:#EDF3E3;
+  --accent:#E2622C; --accent-ink:#FFFFFF;
+  --ink:#1E2814; --ink-soft:#505C42; --ink-faint:#7E8A70;
+  --surface-alt:#F5F8F0; --line:#DFE6D5;
+  --radius:20px; --radius-sm:12px;
+}
+
+/* ============================================================================
+   3. BASE
+   ========================================================================== */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0; background:var(--surface); color:var(--ink);
+  font-family:var(--font-body); font-size:var(--step-0); line-height:1.62; -webkit-font-smoothing:antialiased}
+img{max-width:100%; display:block}
+a{color:inherit}
+button,input,select,textarea{font:inherit; color:inherit}
+h1,h2,h3,h4,h5,h6{font-family:var(--font-display); margin:0; line-height:1.12;
+  letter-spacing:-.018em; font-weight:600; color:var(--ink)}
+h1{font-size:var(--step-4); letter-spacing:-.032em}
+h2{font-size:var(--step-3); letter-spacing:-.026em}
+h3{font-size:var(--step-2)}
+h4{font-size:var(--step-1)}
+h5{font-size:var(--step-0); font-weight:600}
+h6{font-size:var(--step--1); font-weight:600; color:var(--ink-soft)}
+p{margin:0 0 1rem; max-width:68ch}
+p:last-child{margin-bottom:0}
+:focus-visible{outline:3px solid var(--accent); outline-offset:3px; border-radius:2px}
+
+.container{width:100%; max-width:var(--container); margin-inline:auto; padding-inline:var(--gutter)}
+.section{padding-block:var(--section-y)}
+.section-tinted{background:var(--surface-alt)}
+.section-head{max-width:44rem; margin-bottom:clamp(1.8rem,3.5vw,2.8rem)}
+.section-head p{color:var(--ink-soft); margin-top:.8rem; font-size:var(--step-1); line-height:1.5}
+.head-row{display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; flex-wrap:wrap}
+.lede{font-size:var(--step-1); color:var(--ink-soft); line-height:1.55}
+.skip{position:absolute; left:-9999px}
+.skip:focus{left:1rem; top:1rem; z-index:200; background:var(--surface); padding:.7rem 1.1rem;
+  border-radius:var(--radius-sm); box-shadow:var(--shadow-lift)}
+
+/* ============================================================================
+   4. BUTTONS
+   ========================================================================== */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:.55rem;
+  padding:.85rem 1.55rem; border-radius:var(--radius-pill); border:1.5px solid transparent;
+  font-weight:600; font-size:var(--step-0); text-decoration:none; cursor:pointer;
+  transition:background-color .18s ease,color .18s ease,border-color .18s ease,transform .18s ease}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.btn-primary:hover{filter:brightness(.94)}
+.btn-secondary{background:transparent; color:var(--brand); border-color:var(--line)}
+.btn-secondary:hover{border-color:var(--brand); background:var(--brand-tint)}
+.btn-onbrand{background:#fff; color:var(--brand-deep); border-color:#fff}
+.btn-onbrand:hover{filter:brightness(.93)}
+.btn-ghost-light{background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.45)}
+.btn-ghost-light:hover{background:rgba(255,255,255,.16); border-color:#fff}
+.btn-block{width:100%}
+.btn-sm{padding:.6rem 1.1rem; font-size:var(--step--1)}
+.btn-lg{padding:1rem 1.9rem; font-size:var(--step-1)}
+.linkarrow{display:inline-flex; align-items:center; gap:.4rem; color:var(--brand);
+  font-weight:600; text-decoration:none; border-bottom:1.5px solid transparent; padding-bottom:1px}
+.linkarrow:hover{border-bottom-color:var(--brand)}
+
+/* ============================================================================
+   5. MEDIA SLOTS + BACKGROUND FALLBACK  (change 8)
+   Every image is a field. When no image is uploaded, a themed background
+   generated from the brand tokens is used instead — never a broken slot.
+   ========================================================================== */
+.media{position:relative; overflow:hidden; border-radius:var(--radius); background:var(--brand-tint)}
+.media img{width:100%; height:100%; object-fit:cover}
+.media-fallback{position:absolute; inset:0; display:grid; place-items:center;
+  background:
+    radial-gradient(120% 90% at 15% 10%, color-mix(in srgb,var(--accent) 30%,transparent), transparent 60%),
+    linear-gradient(140deg, color-mix(in srgb,var(--brand) 88%,#000) 0%, var(--brand) 45%, color-mix(in srgb,var(--brand) 55%,var(--accent)) 100%);
+}
+.media-fallback::after{content:""; position:absolute; inset:0; opacity:.28;
+  background-image:radial-gradient(rgba(255,255,255,.55) 1px, transparent 1px); background-size:13px 13px}
+.media-label{position:relative; z-index:1; text-align:center; padding:1rem; color:#fff;
+  font-size:var(--step--1); font-weight:600; line-height:1.35; opacity:.9}
+.media-label span{display:block; font-weight:400; opacity:.75; margin-top:.15rem; font-size:.78rem}
+body.has-images .media-label{display:none}
+.ratio-wide{aspect-ratio:16/10}
+.ratio-thumb{aspect-ratio:3/2}
+.ratio-square{aspect-ratio:1/1}
+.ratio-hero{aspect-ratio:5/6}
+.ratio-tall{aspect-ratio:4/5}
+
+/* ============================================================================
+   6. HEADER
+   ========================================================================== */
+.announce{background:var(--brand-deep); color:#fff; font-size:var(--step--1);
+  text-align:center; padding:.55rem var(--gutter); position:relative}
+.announce a{color:#fff; font-weight:600}
+.announce-close{position:absolute; right:.6rem; top:50%; translate:0 -50%; background:none;
+  border:0; color:rgba(255,255,255,.75); cursor:pointer; font-size:1.15rem; line-height:1; padding:.35rem .5rem}
+.announce-close:hover{color:#fff}
+
+.masthead{position:sticky; top:0; z-index:60; background:var(--surface); border-bottom:1px solid var(--line)}
+.masthead-inner{display:flex; align-items:center; gap:.9rem; min-height:76px}
+.brand{display:flex; align-items:center; gap:.65rem; text-decoration:none; min-width:0}
+.brand-mark{width:38px; height:38px; border-radius:10px; background:var(--brand); display:grid;
+  place-items:center; color:#fff; font-family:var(--font-display); font-weight:700; font-size:1.05rem}
+[data-vertical="legal"] .brand-mark{border-radius:4px}
+.brand-name{font-family:var(--font-display); font-weight:600; font-size:1.12rem; line-height:1.15;
+  letter-spacing:-.02em; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.brand-tag{display:block; font-family:var(--font-body); font-size:.72rem; font-weight:400; color:var(--ink-faint)}
+
+.nav{display:none; margin-left:auto}
+.nav ul{display:flex; align-items:center; gap:.25rem; list-style:none; margin:0; padding:0}
+.nav-link{display:flex; align-items:center; gap:.3rem; padding:.6rem .8rem; border-radius:var(--radius-sm);
+  text-decoration:none; font-weight:500; font-size:.97rem; color:var(--ink); background:none; border:0; cursor:pointer}
+.nav-link:hover{background:var(--surface-alt); color:var(--brand)}
+.nav-link svg{width:11px; height:11px; transition:rotate .2s ease}
+.has-menu[aria-expanded="true"] svg{rotate:180deg}
+
+.menu{position:absolute; top:calc(100% - 6px); left:var(--gutter); right:var(--gutter);
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-lift); padding:1.4rem; z-index:70; display:none; max-width:760px}
+.menu[data-open="true"]{display:block}
+.menu-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:.35rem}
+.menu-grid-2{grid-template-columns:repeat(2,1fr)}
+.menu-item{display:block; padding:.7rem .8rem; border-radius:var(--radius-sm); text-decoration:none}
+.menu-item:hover{background:var(--brand-tint)}
+.menu-item strong{display:block; font-weight:600; font-size:.96rem; color:var(--ink)}
+.menu-item span{display:block; font-size:.83rem; color:var(--ink-faint); line-height:1.4; margin-top:.1rem}
+.menu-foot{margin-top:1.1rem; padding-top:1rem; border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap}
+.menu-foot p{font-size:.88rem; color:var(--ink-soft); margin:0}
+
+.header-actions{display:flex; align-items:center; gap:.7rem; margin-left:auto; flex-shrink:0}
+.header-phone{display:none; text-decoration:none; font-weight:600; color:var(--brand); white-space:nowrap}
+.header-phone span{display:block; font-size:.7rem; font-weight:400; color:var(--ink-faint)}
+.burger{display:inline-flex; flex-direction:column; justify-content:center; gap:5px; width:44px;
+  height:44px; padding:0 11px; background:none; border:1px solid var(--line); border-radius:var(--radius-sm); cursor:pointer}
+.burger i{display:block; height:2px; background:var(--ink); border-radius:2px}
+
+.drawer{position:fixed; inset:0; z-index:100; visibility:hidden; overflow:hidden}
+.drawer[data-open="true"]{visibility:visible}
+.drawer-scrim{position:absolute; inset:0; background:rgba(12,24,20,.45); opacity:0; transition:opacity .25s ease}
+.drawer[data-open="true"] .drawer-scrim{opacity:1}
+.drawer-panel{position:absolute; inset-block:0; right:0; width:min(360px,90vw); background:var(--surface);
+  translate:100% 0; transition:translate .28s cubic-bezier(.4,0,.2,1); display:flex; flex-direction:column; overflow-y:auto}
+.drawer[data-open="true"] .drawer-panel{translate:0 0}
+.drawer-head{display:flex; align-items:center; justify-content:space-between; padding:1.1rem var(--gutter); border-bottom:1px solid var(--line)}
+.drawer-body{padding:1rem var(--gutter) 2rem; flex:1}
+.drawer-body details{border-bottom:1px solid var(--line)}
+.drawer-body summary{padding:.9rem 0; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between}
+.drawer-body summary::-webkit-details-marker{display:none}
+.drawer-body summary::after{content:"+"; color:var(--ink-faint)}
+.drawer-body details[open] summary::after{content:"–"}
+.drawer-body details a{display:block; padding:.5rem 0 .5rem .9rem; text-decoration:none; color:var(--ink-soft)}
+.drawer-body > a{display:block; padding:.9rem 0; border-bottom:1px solid var(--line); text-decoration:none; font-weight:600}
+.drawer-foot{padding:1.2rem var(--gutter) calc(1.2rem + env(safe-area-inset-bottom)); border-top:1px solid var(--line); display:grid; gap:.6rem}
+.iconbtn{background:none; border:0; cursor:pointer; font-size:1.5rem; line-height:1; padding:.3rem .5rem; color:var(--ink-soft)}
+
+/* ============================================================================
+   7. HERO
+   ========================================================================== */
+.hero{padding-block:clamp(2.5rem,5vw,4.5rem) 0; overflow:hidden}
+.hero-grid{display:grid; gap:clamp(2rem,4vw,3.5rem); align-items:center}
+.hero-title{margin-bottom:1.1rem}
+.hero-copy > .lede{max-width:34rem}
+.hero-cta{display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.7rem}
+.hero-rating{display:flex; align-items:center; gap:.6rem; margin-top:1.4rem; font-size:.9rem; color:var(--ink-soft)}
+.hero-media .media{box-shadow:var(--shadow-card)}
+
+/* ---- change 1: hero trust points as CARDS ------------------------------- */
+.hpcards{display:grid; gap:1rem; margin-top:clamp(2.5rem,5vw,3.5rem)}
+.hpcard{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:1.35rem; display:flex; flex-direction:column; gap:.6rem;
+  transition:border-color .18s ease, box-shadow .18s ease}
+.hpcard:hover{border-color:color-mix(in srgb,var(--brand) 45%,var(--line)); box-shadow:var(--shadow-card)}
+.hpcard-icon{width:44px; height:44px; border-radius:12px; background:var(--brand-tint); color:var(--brand);
+  display:grid; place-items:center}
+.hpcard-icon svg{width:21px; height:21px; stroke:currentColor; stroke-width:1.8; fill:none; stroke-linecap:round; stroke-linejoin:round}
+.hpcard h3{font-size:var(--step-1)}
+.hpcard p{font-size:.93rem; color:var(--ink-soft); margin:0}
+
+/* ============================================================================
+   8. STAT CARDS  (change 3)
+   ========================================================================== */
+.stats{display:grid; gap:1rem}
+.statcard{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:1.3rem 1.35rem; display:flex; flex-direction:column; gap:.15rem; position:relative; overflow:hidden}
+.statcard::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--brand)}
+.statcard-top{display:flex; align-items:center; gap:.5rem; color:var(--brand)}
+.statcard-top svg{width:17px; height:17px; stroke:currentColor; stroke-width:1.9; fill:none; stroke-linecap:round; stroke-linejoin:round}
+.statcard-top span{font-size:.78rem; font-weight:600; color:var(--ink-faint); letter-spacing:.01em}
+.stat-value{font-family:var(--font-display); font-size:clamp(1.7rem,1.3rem + 1.4vw,2.35rem);
+  font-weight:600; color:var(--ink); line-height:1.05; margin-top:.3rem}
+.stat-label{font-size:.93rem; color:var(--ink-soft); font-weight:500}
+.stat-sub{font-size:.82rem; color:var(--ink-faint); margin-top:.3rem}
+
+/* ============================================================================
+   9. BOOKING CTA BAND  (change 2)
+   Left: high-intent actions. Right: the full form. Background image field
+   with themed gradient fallback.
+   ========================================================================== */
+.bookband{position:relative; overflow:hidden; color:#fff}
+.bookband .media{position:absolute; inset:0; border-radius:0}
+.bookband-scrim{position:absolute; inset:0;
+  background:linear-gradient(100deg, color-mix(in srgb,var(--brand-deep) 94%,transparent) 0%,
+    color-mix(in srgb,var(--brand-deep) 82%,transparent) 42%, color-mix(in srgb,var(--brand) 62%,transparent) 100%)}
+.bookband-inner{position:relative; z-index:2; display:grid; gap:2rem; align-items:center;
+  padding-block:clamp(2.8rem,6vw,4.5rem)}
+.bookband h2{color:#fff; max-width:16ch}
+.bookband-sub{color:rgba(255,255,255,.82); margin-top:.9rem; font-size:var(--step-1); line-height:1.5; max-width:36ch}
+.bookband-actions{display:grid; gap:.7rem; margin-top:1.7rem; max-width:340px}
+.bookband-points{list-style:none; margin:1.7rem 0 0; padding:0; display:grid; gap:.55rem}
+.bookband-points li{display:flex; align-items:flex-start; gap:.55rem; font-size:.92rem; color:rgba(255,255,255,.85)}
+.tick-light{width:18px; height:18px; flex-shrink:0; margin-top:.15rem; border-radius:50%;
+  background:rgba(255,255,255,.18); display:grid; place-items:center}
+.tick-light svg{width:9px; height:9px; stroke:#fff; stroke-width:3; fill:none}
+.callout-phone{display:flex; align-items:center; gap:.7rem; margin-top:1.4rem;
+  padding-top:1.4rem; border-top:1px solid rgba(255,255,255,.2)}
+.callout-phone b{display:block; font-family:var(--font-display); font-size:var(--step-1); color:#fff}
+.callout-phone span{font-size:.82rem; color:rgba(255,255,255,.7)}
+
+.bookform{background:var(--surface); border-radius:var(--radius); padding:clamp(1.3rem,2.5vw,1.8rem);
+  box-shadow:var(--shadow-lift); color:var(--ink)}
+.bookform h3{font-size:var(--step-2); margin-bottom:.35rem}
+.bookform > p{font-size:.9rem; color:var(--ink-soft); margin-bottom:1.1rem}
+.formgrid{display:grid; gap:.85rem}
+.formgrid-2{display:grid; gap:.85rem}
+.field label{display:block; font-size:.79rem; font-weight:600; color:var(--ink-soft); margin-bottom:.28rem}
+.field input,.field select,.field textarea{width:100%; padding:.7rem .82rem; border:1.5px solid var(--line);
+  border-radius:var(--radius-sm); background:var(--surface); font-size:.95rem}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand); outline:none}
+.consent{display:flex; gap:.6rem; align-items:flex-start; font-size:.82rem; color:var(--ink-soft)}
+.consent input{margin-top:.25rem; width:auto}
+.form-note{font-size:.78rem; color:var(--ink-faint); text-align:center; margin-top:.2rem}
+
+/* ============================================================================
+   10. SLIDERS  (change 6)  — scroll-snap, all content stays in the DOM
+   ========================================================================== */
+.slider{position:relative}
+/* When the items already fit the viewport, the slider becomes a plain grid:
+   no arrows, no dots, no horizontal scroll. Re-evaluated on resize. */
+.slider.is-static .slider-track{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
+  overflow:visible; scroll-snap-type:none; padding-bottom:0}
+.slider.is-static .slider-track > *{flex:none}
+.slider.is-static .slider-foot{display:none}
+.slider-track{display:flex; align-items:stretch; gap:1.15rem; overflow-x:auto; scroll-snap-type:x mandatory;
+  scroll-behavior:smooth; padding-bottom:.4rem; scrollbar-width:none; -ms-overflow-style:none}
+.slider-track::-webkit-scrollbar{display:none}
+.slider-track > *{scroll-snap-align:start; flex:0 0 84%}
+.slider-foot{display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:1.3rem}
+.slider-dots{display:flex; gap:.4rem; flex-wrap:wrap}
+.slider-dots button{width:7px; height:7px; padding:0; border-radius:50%; border:0; cursor:pointer;
+  background:var(--line); transition:width .2s ease, background-color .2s ease}
+.slider-dots button[aria-current="true"]{width:22px; border-radius:4px; background:var(--brand)}
+.slider-arrows{display:flex; gap:.45rem}
+.sarrow{width:42px; height:42px; border-radius:50%; border:1.5px solid var(--line); background:var(--surface);
+  display:grid; place-items:center; cursor:pointer; color:var(--ink)}
+.sarrow:hover:not(:disabled){border-color:var(--brand); color:var(--brand); background:var(--brand-tint)}
+.sarrow:disabled{opacity:.35; cursor:default}
+.sarrow svg{width:15px; height:15px; stroke:currentColor; stroke-width:2.2; fill:none; stroke-linecap:round; stroke-linejoin:round}
+
+/* ============================================================================
+   11. CARDS
+   ========================================================================== */
+/* generic responsive card grid utilities */
+.grid{display:grid; gap:1.15rem}
+.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  overflow:hidden; display:flex; flex-direction:column;
+  transition:border-color .18s ease, box-shadow .18s ease}
+.card:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line)); box-shadow:var(--shadow-card)}
+.card .media{border-radius:0}
+.card-body{padding:1.25rem; display:flex; flex-direction:column; gap:.55rem; flex:1}
+.card-body p{font-size:.94rem; color:var(--ink-soft); margin:0}
+.card-meta{font-size:.82rem; color:var(--ink-faint)}
+.card-foot{margin-top:auto; padding-top:.9rem}
+.svc-price{font-size:.88rem; font-weight:600; color:var(--brand)}
+.post-title{font-size:var(--step-1); line-height:1.25}
+.post-title a{text-decoration:none}
+.post-title a:hover{color:var(--brand)}
+
+/* ---- change 4: team list, no image column ------------------------------- */
+.about-lead{max-width:46rem; margin-bottom:clamp(2rem,4vw,3rem)}
+/* team cards — photo-led, one optional image field per member */
+.teamcard{display:flex; flex-direction:column; border:1px solid var(--line);
+  border-radius:var(--radius); background:var(--surface); overflow:hidden;
+  transition:border-color .18s ease, box-shadow .18s ease}
+.teamcard:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line)); box-shadow:var(--shadow-card)}
+/* aspect ratio keeps the crop consistent; max-height stops the portrait
+   dominating the card when only two members are shown side by side */
+.teamcard .media{border-radius:0; aspect-ratio:4/5; max-height:300px}
+.teamcard-body{padding:1.25rem; display:flex; flex-direction:column; gap:.5rem; flex:1}
+.team-name{font-family:var(--font-display); font-size:var(--step-1); font-weight:600; line-height:1.2}
+.team-cred{font-size:.85rem; color:var(--brand); font-weight:600}
+.team-role{font-size:.85rem; color:var(--ink-faint); margin-top:-.3rem}
+.teamcard-body p{font-size:.93rem; color:var(--ink-soft); margin:.15rem 0 0}
+.team-tags{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.35rem}
+.team-links{display:flex; gap:.9rem; align-items:center; margin-top:auto;
+  padding-top:.95rem; border-top:1px solid var(--line)}
+.team-links a{font-size:.85rem; font-weight:600; color:var(--brand); text-decoration:none;
+  border-bottom:1.5px solid transparent}
+.team-links a:hover{border-bottom-color:var(--brand)}
+/* initials shown when no photo has been uploaded */
+.avatar-fallback{position:absolute; inset:0; display:grid; place-items:center}
+.avatar-initials{position:relative; z-index:1; font-family:var(--font-display); font-weight:600;
+  font-size:clamp(2.2rem,5vw,3rem); color:#fff; letter-spacing:.02em; opacity:.92}
+.tag{font-size:.78rem; padding:.25rem .65rem; border-radius:var(--radius-pill);
+  background:var(--brand-tint); color:var(--brand); font-weight:600}
+
+/* ---- change 5: dynamic location cards ----------------------------------- */
+.loccard{display:flex; flex-direction:column; gap:.75rem; padding:1.4rem;
+  border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); height:100%}
+.loccard-name{display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem}
+.loccard-name h3{font-size:var(--step-1)}
+.openpill{font-size:.74rem; font-weight:600; padding:.2rem .6rem; border-radius:var(--radius-pill);
+  background:color-mix(in srgb,var(--brand) 12%,transparent); color:var(--brand); white-space:nowrap}
+.loccard address{font-style:normal; font-size:.93rem; color:var(--ink-soft); line-height:1.6}
+.locmeta{display:grid; gap:.45rem; font-size:.89rem; color:var(--ink-soft)}
+.locmeta div{display:flex; gap:.55rem; align-items:flex-start}
+.locmeta svg{width:15px; height:15px; margin-top:.28rem; flex-shrink:0; stroke:var(--ink-faint);
+  stroke-width:1.9; fill:none; stroke-linecap:round; stroke-linejoin:round}
+.locmeta a{color:var(--brand); font-weight:600; text-decoration:none}
+.loccard-actions{margin-top:auto; padding-top:.4rem; display:flex; gap:.5rem; flex-wrap:wrap}
+
+/* reviews */
+.review{padding:1.4rem; border:1px solid var(--line); border-radius:var(--radius);
+  background:var(--surface); display:flex; flex-direction:column; gap:.75rem; height:100%}
+.stars{display:flex; gap:2px; color:var(--star)}
+.stars svg{width:15px; height:15px; fill:currentColor}
+.review blockquote{margin:0; font-size:.96rem; line-height:1.6}
+.review-svc{font-size:.8rem; color:var(--brand); font-weight:600}
+.review figcaption{font-size:.85rem; color:var(--ink-faint); margin-top:auto; padding-top:.3rem}
+.review figcaption b{color:var(--ink-soft); font-weight:600}
+
+
+/* ---- why choose us ------------------------------------------------------ */
+.whyus-grid{display:grid; gap:clamp(2rem,4vw,3.5rem); align-items:stretch}
+.whyus-media{order:-1; aspect-ratio:16/10}
+.whyus-list{list-style:none; margin:1.6rem 0 0; padding:0; display:grid; gap:1.05rem}
+.whyus-list li{display:flex; gap:.85rem; align-items:flex-start}
+.whyus-check{width:26px; height:26px; flex-shrink:0; border-radius:50%; background:var(--brand);
+  display:grid; place-items:center; margin-top:.1rem}
+.whyus-check svg{width:12px; height:12px; stroke:#fff; stroke-width:3; fill:none;
+  stroke-linecap:round; stroke-linejoin:round}
+.whyus-list b{display:block; font-family:var(--font-display); font-size:var(--step-0);
+  font-weight:600; color:var(--ink); margin-bottom:.15rem}
+.whyus-list span{font-size:.93rem; color:var(--ink-soft)}
+.whyus-cta{display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.8rem}
+@media (min-width:900px){
+  .whyus-grid{grid-template-columns:.95fr 1.05fr}
+  .whyus-media{order:0; aspect-ratio:auto; height:100%; min-height:440px}
+}
+
+/* ---- change 7: FAQ left, CTA right --------------------------------------- */
+.faq-layout{display:grid; gap:2.2rem; align-items:start}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{padding:1.1rem 2.2rem 1.1rem 0; cursor:pointer; font-weight:600;
+  position:relative; list-style:none; font-size:1.02rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:""; position:absolute; right:.45rem; top:1.45rem; width:9px; height:9px;
+  border-right:2px solid var(--ink-faint); border-bottom:2px solid var(--ink-faint);
+  rotate:45deg; transition:rotate .2s ease}
+.faq details[open] summary::after{rotate:225deg}
+.faq .answer{padding:0 0 1.2rem; color:var(--ink-soft)}
+.faqcta{background:var(--brand-deep); color:#fff; border-radius:var(--radius);
+  padding:clamp(1.4rem,3vw,1.9rem); display:flex; flex-direction:column; gap:.7rem}
+.faqcta h3{color:#fff; font-size:var(--step-2)}
+.faqcta p{color:rgba(255,255,255,.78); font-size:.94rem; margin:0}
+.faqcta-actions{display:grid; gap:.6rem; margin-top:.6rem}
+.faqcta-foot{margin-top:.8rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,.18);
+  font-size:.86rem; color:rgba(255,255,255,.72)}
+.faqcta-foot a{color:#fff; font-weight:600}
+
+/* closing cta band */
+.ctaband{position:relative; overflow:hidden; border-radius:var(--radius); color:#fff}
+.ctaband .media{position:absolute; inset:0; border-radius:0}
+.ctaband-scrim{position:absolute; inset:0;
+  background:linear-gradient(120deg, color-mix(in srgb,var(--brand-deep) 92%,transparent),
+    color-mix(in srgb,var(--brand) 68%,transparent))}
+.ctaband-inner{position:relative; z-index:2; padding:clamp(2rem,5vw,3.4rem)}
+.ctaband h2{color:#fff; max-width:20ch}
+.ctaband p{color:rgba(255,255,255,.82); margin-top:.85rem}
+.ctaband-actions{display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.7rem}
+
+/* footer */
+.footer{background:var(--brand-deep); color:rgba(255,255,255,.76); padding-block:clamp(2.5rem,5vw,4rem) 0}
+.footer h6{color:#fff; margin-bottom:.9rem; font-size:.9rem}
+.footer a{color:rgba(255,255,255,.76); text-decoration:none}
+.footer a:hover{color:#fff}
+.footer-grid{display:grid; gap:2rem; grid-template-columns:1fr}
+.footer ul{list-style:none; margin:0; padding:0; display:grid; gap:.5rem; font-size:.92rem}
+.footer .brand-name{color:#fff}
+.footer address{font-style:normal; font-size:.92rem; line-height:1.7}
+.footer-bottom{margin-top:2.5rem; border-top:1px solid rgba(255,255,255,.14); padding-block:1.3rem;
+  display:flex; flex-wrap:wrap; gap:.6rem 1.4rem; justify-content:space-between; font-size:.85rem}
+.footer-legal{display:flex; flex-wrap:wrap; gap:.6rem 1.2rem}
+.social{display:flex; gap:.5rem; margin-top:1rem}
+.social a{width:34px; height:34px; border-radius:50%; border:1px solid rgba(255,255,255,.22); display:grid; place-items:center}
+.social svg{width:15px; height:15px; fill:currentColor}
+
+/* sticky mobile bar */
+.actionbar{position:fixed; left:0; right:0; bottom:0; z-index:55; display:grid;
+  grid-template-columns:1fr 1fr 1.2fr; background:var(--surface); border-top:1px solid var(--line);
+  padding:.5rem .5rem calc(.5rem + env(safe-area-inset-bottom)); gap:.4rem}
+.actionbar a{display:flex; flex-direction:column; align-items:center; gap:.15rem; padding:.45rem .3rem;
+  text-decoration:none; font-size:.72rem; font-weight:600; color:var(--ink-soft); border-radius:var(--radius-sm)}
+.actionbar a svg{width:18px; height:18px; stroke:currentColor; stroke-width:1.9; fill:none}
+.actionbar .primary{background:var(--accent); color:var(--accent-ink)}
+
+/* popup */
+.popup{position:fixed; inset:0; z-index:120; display:none; place-items:center; padding:1.2rem}
+.popup[data-open="true"]{display:grid}
+.popup-scrim{position:absolute; inset:0; background:rgba(12,24,20,.5)}
+.popup-card{position:relative; background:var(--surface); border-radius:var(--radius);
+  max-width:440px; width:100%; box-shadow:var(--shadow-lift); overflow:hidden}
+.popup-body{padding:1.6rem}
+.popup-body h3{margin-bottom:.6rem}
+.popup-body p{font-size:.94rem; color:var(--ink-soft)}
+.popup-close{position:absolute; top:.5rem; right:.6rem; z-index:3; color:#fff}
+.popup-fineprint{font-size:.78rem; color:var(--ink-faint); margin-top:.8rem}
+
+/* annotate mode */
+body.annotate [data-field]{outline:1.5px dashed color-mix(in srgb,var(--brand) 55%,transparent); outline-offset:2px}
+body.annotate [data-field]:hover{outline:2px solid var(--accent); outline-offset:2px; position:relative}
+body.annotate [data-field]:hover::before{content:attr(data-field); position:absolute; top:-1.55rem; left:0;
+  z-index:90; background:var(--ink); color:#fff; font-family:var(--font-body); font-size:11px;
+  font-weight:600; padding:2px 7px; border-radius:4px; white-space:nowrap; pointer-events:none}
+
+/* demo panel */
+.panel{position:fixed; right:1rem; bottom:1rem; z-index:130; width:min(310px,calc(100vw - 2rem));
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow-lift); font-size:.85rem; overflow:hidden}
+.panel-toggle{width:100%; display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+  padding:.75rem 1rem; background:var(--ink); color:#fff; border:0; cursor:pointer; font-weight:600}
+.panel-inner{padding:1rem; display:none; gap:1rem; max-height:min(72vh,540px); overflow-y:auto}
+.panel[data-open="true"] .panel-inner{display:grid}
+.panel h6{margin-bottom:.5rem; color:var(--ink-soft)}
+.panel-verticals{display:grid; grid-template-columns:1fr 1fr; gap:.4rem}
+.vbtn{padding:.55rem .5rem; border:1.5px solid var(--line); background:var(--surface);
+  border-radius:var(--radius-sm); cursor:pointer; font-size:.82rem; font-weight:600; text-align:center}
+.vbtn[aria-pressed="true"]{border-color:var(--brand); background:var(--brand-tint); color:var(--brand)}
+.swatches{display:grid; gap:.5rem}
+.swatch{display:flex; align-items:center; justify-content:space-between; gap:.6rem}
+.swatch input[type=color]{width:44px; height:28px; padding:0; border:1px solid var(--line); border-radius:5px; background:none; cursor:pointer}
+.panel-row{display:flex; align-items:center; justify-content:space-between; gap:.6rem}
+.panel-note{font-size:.76rem; color:var(--ink-faint); line-height:1.45}
+.switch{display:flex; align-items:center; gap:.5rem; cursor:pointer; font-weight:600}
+
+/* ============================================================================
+   12. RESPONSIVE
+   ========================================================================== */
+@media (min-width:640px){
+  .grid-2,.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}
+  .hpcards{grid-template-columns:repeat(3,1fr)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .formgrid-2{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
+  .slider-track > *{flex-basis:48%}
+
+}
+@media (min-width:900px){
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .nav{display:block}
+  .burger{display:none}
+  .header-phone{display:block}
+  .actionbar{display:none}
+  .hero-grid{grid-template-columns:1.05fr .95fr}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .bookband-inner{grid-template-columns:1fr 1.05fr; gap:3rem}
+  .slider-track > *{flex-basis:calc((100% - 2.3rem)/3)}
+  .faq-layout{grid-template-columns:1.35fr .65fr; gap:3rem}
+  .faqcta{position:sticky; top:100px}
+  .footer-grid{grid-template-columns:1.4fr 1fr 1fr 1.2fr}
+}
+@media (max-width:899px){ body{padding-bottom:68px} }
+@media (max-width:639px){
+  .header-actions .btn{display:none}
+  .brand-tag{display:none}
+  .masthead-inner{min-height:64px; gap:.6rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; transition-duration:.01ms !important}
+  .slider-track{scroll-behavior:auto}
+  html{scroll-behavior:auto}
+}
+@media (prefers-reduced-motion:no-preference){
+  .reveal{opacity:0; transform:translateY(14px); animation:rise .7s cubic-bezier(.2,.7,.3,1) forwards}
+  .reveal:nth-child(1){animation-delay:.05s}
+  .reveal:nth-child(2){animation-delay:.13s}
+  .reveal:nth-child(3){animation-delay:.21s}
+  .reveal:nth-child(4){animation-delay:.29s}
+  @keyframes rise{to{opacity:1; transform:none}}
+}
+</style>
+
+<style>
+/* ---- page hero (interior pages) ---------------------------------------- */
+.pagehero{position:relative; overflow:hidden; padding-block:clamp(2rem,4vw,3rem) clamp(3rem,6vw,5rem);
+  background:var(--surface-alt); border-bottom:1px solid var(--line)}
+.pagehero > .media{position:absolute; inset:0; border-radius:0}
+.pagehero-scrim{position:absolute; inset:0;
+  background:linear-gradient(100deg, color-mix(in srgb,var(--brand-deep) 93%,transparent) 0%,
+    color-mix(in srgb,var(--brand-deep) 78%,transparent) 55%, color-mix(in srgb,var(--brand) 60%,transparent) 100%)}
+.pagehero-inner{position:relative; z-index:2}
+.pagehero h1{max-width:20ch; color:#fff}
+.pagehero .lede{margin-top:1.1rem; max-width:52ch; color:rgba(255,255,255,.84)}
+.pagehero .crumbs{color:rgba(255,255,255,.6)}
+.pagehero .crumbs a{color:rgba(255,255,255,.8)}
+.pagehero .crumbs a:hover{color:#fff}
+.pagehero .crumbs [aria-current]{color:#fff}
+.pagehero .crumbs li::after{color:rgba(255,255,255,.35)}
+.pagehero-grid{display:grid; gap:clamp(1.8rem,4vw,3rem); align-items:center}
+.pagehero-cta{display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.6rem}
+.crumbs{display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; font-size:.84rem;
+  color:var(--ink-faint); margin-bottom:1.1rem; list-style:none; padding:0}
+.crumbs a{text-decoration:none; color:var(--ink-soft)}
+.crumbs a:hover{color:var(--brand)}
+.crumbs li::after{content:"/"; margin-left:.4rem; color:var(--line)}
+.crumbs li:last-child::after{content:""}
+.crumbs [aria-current]{color:var(--ink); font-weight:600}
+
+/* ---- prose (story) ------------------------------------------------------ */
+.prose{max-width:60ch}
+.prose p{margin-bottom:1.1rem; color:var(--ink-soft)}
+.pullquote{margin:1.6rem 0 0; padding:1.3rem 1.5rem; border-left:3px solid var(--brand);
+  background:var(--brand-tint); border-radius:0 var(--radius) var(--radius) 0}
+.pullquote p{color:var(--ink); font-size:var(--step-1); line-height:1.5; margin:0}
+.pullquote footer{margin-top:.7rem; font-size:.86rem; color:var(--ink-soft); font-weight:600}
+
+/* full-bleed background slots: keep the placeholder label out of the copy */
+.pagehero > .media .media-label,.ctaband > .media .media-label,.bookband > .media .media-label{
+  position:absolute; right:1.1rem; bottom:1rem; left:auto; top:auto;
+  text-align:right; opacity:.45; font-size:.72rem}
+
+/* ---- story split (image + copy) ---------------------------------------- */
+.storysplit{display:grid; gap:clamp(1.8rem,4vw,3.2rem); align-items:center}
+.storysplit .story-media{order:-1; aspect-ratio:16/11}
+.storysplit-cta{display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.7rem}
+.pullquote{margin:1.6rem 0 0; padding:1.25rem 1.4rem; border-left:3px solid var(--brand);
+  background:var(--brand-tint); border-radius:0 var(--radius) var(--radius) 0}
+.pullquote p{color:var(--ink); font-size:var(--step-1); line-height:1.5; margin:0}
+.pullquote footer{margin-top:.7rem; font-size:.86rem; color:var(--ink-soft); font-weight:600}
+
+/* ---- mission & vision --------------------------------------------------- */
+.mv-grid{display:grid; gap:1.15rem}
+.mvcard{position:relative; overflow:hidden; border:1px solid var(--line); border-radius:var(--radius);
+  background:var(--surface); padding:clamp(1.5rem,3vw,2.1rem); display:flex; flex-direction:column; gap:.7rem}
+.mvcard::before{content:""; position:absolute; inset:0 0 auto 0; height:4px; background:var(--brand)}
+.mvcard.is-vision::before{background:var(--accent)}
+.mv-icon{width:52px; height:52px; border-radius:14px; background:var(--brand-tint); color:var(--brand);
+  display:grid; place-items:center; margin-bottom:.2rem}
+.mvcard.is-vision .mv-icon{background:color-mix(in srgb,var(--accent) 20%,transparent);
+  color:color-mix(in srgb,var(--accent) 72%,var(--ink))}
+.mv-icon svg{width:25px; height:25px; stroke:currentColor; stroke-width:1.7; fill:none;
+  stroke-linecap:round; stroke-linejoin:round}
+.mv-label{font-size:.8rem; font-weight:600; color:var(--ink-faint)}
+.mvcard h3{font-size:var(--step-2); max-width:22ch}
+.mvcard p{font-size:.96rem; color:var(--ink-soft); margin:0}
+
+/* ---- value boxes (horizontal, icon-led) -------------------------------- */
+.valuebox{display:flex; gap:1rem; align-items:flex-start; padding:1.35rem;
+  border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); height:100%;
+  transition:border-color .18s ease, box-shadow .18s ease}
+.valuebox:hover{border-color:color-mix(in srgb,var(--brand) 45%,var(--line)); box-shadow:var(--shadow-card)}
+.valuebox-icon{width:46px; height:46px; flex-shrink:0; border-radius:13px; background:var(--brand-tint);
+  color:var(--brand); display:grid; place-items:center}
+.valuebox-icon svg{width:22px; height:22px; stroke:currentColor; stroke-width:1.8; fill:none;
+  stroke-linecap:round; stroke-linejoin:round}
+.valuebox h3{font-size:var(--step-1); line-height:1.25}
+.valuebox p{font-size:.93rem; color:var(--ink-soft); margin:.35rem 0 0}
+
+/* ---- horizontal milestones timeline ------------------------------------ */
+.htimeline{display:grid; gap:1.6rem}
+.htl-item{position:relative; padding-top:1.5rem; border-top:2px solid var(--line)}
+.htl-item::before{content:""; position:absolute; top:-8px; left:0; width:14px; height:14px;
+  border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px var(--surface-alt)}
+.htl-year{font-family:var(--font-display); font-weight:600; color:var(--brand); font-size:.92rem}
+.htl-item h3{font-size:var(--step-1); margin-top:.2rem}
+.htl-item p{font-size:.92rem; color:var(--ink-soft); margin:.35rem 0 0}
+
+/* ---- credentials band (dark, authoritative) ---------------------------- */
+.credband{background:var(--brand-deep); color:#fff; border-radius:var(--radius);
+  padding:clamp(1.8rem,4vw,3rem)}
+.credband h2{color:#fff}
+.credband > p{color:rgba(255,255,255,.75); margin-top:.8rem; font-size:var(--step-1)}
+.credgrid{display:grid; gap:1.6rem 1.4rem; margin-top:clamp(1.8rem,3.5vw,2.6rem)}
+.creditem{display:flex; flex-direction:column; gap:.55rem}
+.creditem-icon{width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.22); display:grid; place-items:center; color:#fff}
+.creditem-icon svg{width:21px; height:21px; stroke:currentColor; stroke-width:1.7; fill:none;
+  stroke-linecap:round; stroke-linejoin:round}
+.creditem h3{font-size:var(--step-0); color:#fff}
+.creditem p{font-size:.9rem; color:rgba(255,255,255,.72); margin:0}
+
+/* ---- contact methods ---------------------------------------------------- */
+.methods{display:grid; gap:1rem}
+.method{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:1.35rem; display:flex; flex-direction:column; gap:.4rem; text-decoration:none;
+  transition:border-color .18s ease, box-shadow .18s ease}
+.method:hover{border-color:color-mix(in srgb,var(--brand) 45%,var(--line)); box-shadow:var(--shadow-card)}
+.method-icon{width:42px; height:42px; border-radius:11px; background:var(--brand-tint); color:var(--brand);
+  display:grid; place-items:center; margin-bottom:.35rem}
+.method-icon svg{width:20px; height:20px; stroke:currentColor; stroke-width:1.8; fill:none;
+  stroke-linecap:round; stroke-linejoin:round}
+.method h3{font-size:var(--step-0)}
+.method-value{font-family:var(--font-display); font-size:var(--step-1); font-weight:600; color:var(--brand)}
+.method p{font-size:.87rem; color:var(--ink-faint); margin:0}
+
+/* ---- contact layout ----------------------------------------------------- */
+.contact-layout{display:grid; gap:2.2rem; align-items:start}
+.sidecard{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1.4rem}
+.sidecard + .sidecard{margin-top:1rem}
+.sidecard h3{font-size:var(--step-1); margin-bottom:.8rem}
+.hours{width:100%; border-collapse:collapse; font-size:.92rem}
+.hours th,.hours td{text-align:left; padding:.5rem 0; border-bottom:1px solid var(--line)}
+.hours th{font-weight:500; color:var(--ink-soft)}
+.hours td{text-align:right; font-weight:600}
+.hours tr:last-child th,.hours tr:last-child td{border-bottom:0}
+.nextsteps{list-style:none; margin:0; padding:0; display:grid; gap:.9rem; counter-reset:ns}
+.nextsteps li{display:flex; gap:.75rem; counter-increment:ns; font-size:.93rem; color:var(--ink-soft)}
+.nextsteps li::before{content:counter(ns); flex-shrink:0; width:26px; height:26px; border-radius:50%;
+  border:1.5px solid var(--brand); color:var(--brand); display:grid; place-items:center;
+  font-family:var(--font-display); font-weight:600; font-size:.8rem}
+.notice{border-left:3px solid var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent);
+  padding:1rem 1.2rem; border-radius:0 var(--radius-sm) var(--radius-sm) 0; font-size:.92rem}
+.notice b{display:block; margin-bottom:.2rem}
+
+/* ---- GHL form slot ------------------------------------------------------ */
+.formslot{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:clamp(1.3rem,2.5vw,1.8rem)}
+.formslot > h2{font-size:var(--step-2); margin-bottom:.3rem}
+.formslot > p.sub{font-size:.93rem; color:var(--ink-soft); margin-bottom:1.2rem}
+.ghl-embed{border:2px dashed color-mix(in srgb,var(--brand) 40%,transparent); border-radius:var(--radius);
+  padding:1.6rem; background:var(--brand-tint)}
+.ghl-embed h4{font-size:var(--step-0); margin-bottom:.4rem; color:var(--brand)}
+.ghl-embed p{font-size:.88rem; color:var(--ink-soft); margin:0 0 .8rem}
+.ghl-embed code{display:block; background:var(--ink); color:#E6F0EA; padding:.9rem 1rem;
+  border-radius:var(--radius-sm); font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.76rem; line-height:1.65; overflow-x:auto; white-space:pre}
+.ghl-embed iframe{width:100%; border:none; border-radius:var(--radius-sm); min-height:640px}
+
+/* ---- location detail block (contact page) -------------------------------- */
+.locdetail{display:grid; gap:1.2rem; padding:1.4rem; border:1px solid var(--line);
+  border-radius:var(--radius); background:var(--surface); height:100%}
+.locdetail .media{aspect-ratio:16/9}
+.locdetail h3{font-size:var(--step-1)}
+
+/* ---- service hero (image right) ---------------------------------------- */
+.svchero-grid{display:grid; gap:clamp(1.8rem,4vw,3rem); align-items:center}
+.svchero-media{order:-1; aspect-ratio:4/3; border-radius:var(--radius); overflow:hidden;
+  box-shadow:0 24px 60px -28px rgba(0,0,0,.55)}
+.herofacts{display:grid; grid-template-columns:repeat(3,1fr); gap:.7rem; margin-top:1.8rem; max-width:460px}
+.herofact{background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+  border-radius:var(--radius-sm); padding:.8rem .9rem}
+.herofact span{display:block; font-size:.7rem; font-weight:600; letter-spacing:.06em;
+  text-transform:uppercase; color:rgba(255,255,255,.62); margin-bottom:.2rem}
+.herofact b{font-family:var(--font-display); font-size:.98rem; font-weight:600; color:#fff; line-height:1.25}
+.svchero-cta{display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1.8rem}
+
+/* ---- section label + centred heads -------------------------------------- */
+.seclabel{display:flex; align-items:center; gap:.7rem; font-size:.74rem; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--brand); margin-bottom:.9rem}
+.seclabel::after{content:""; width:34px; height:1px; background:currentColor; opacity:.5}
+.sec-center{text-align:center; max-width:44rem; margin-inline:auto;
+  margin-bottom:clamp(2rem,4vw,3rem)}
+.sec-center .seclabel{justify-content:center}
+.sec-center p{color:var(--ink-soft); margin-top:.8rem; font-size:var(--step-1); line-height:1.5}
+
+/* ---- about the service: lead answer + spec card ------------------------ */
+.aboutgrid{display:grid; gap:clamp(2rem,4vw,3.2rem); align-items:start}
+
+/* the direct answer, styled as a deliberate "in short" panel */
+.keypoint{position:relative; overflow:hidden; margin-top:1.4rem; padding:1.5rem 1.6rem 1.5rem 1.75rem;
+  border-radius:var(--radius); border:1px solid color-mix(in srgb,var(--brand) 22%,var(--line));
+  background:linear-gradient(135deg, var(--brand-tint) 0%, color-mix(in srgb,var(--brand-tint) 40%,var(--surface)) 100%)}
+.keypoint::after{content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+  background:linear-gradient(180deg, var(--brand), var(--accent))}
+.keypoint-tag{display:inline-flex; align-items:center; gap:.45rem; font-size:.72rem; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--brand); margin-bottom:.6rem}
+.keypoint-tag::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--accent)}
+.keypoint p{position:relative; font-size:var(--step-1); line-height:1.55; color:var(--ink);
+  margin:0; max-width:46ch}
+.aboutcta{display:flex; flex-wrap:wrap; align-items:center; gap:1.2rem; margin-top:1.8rem}
+
+/* spec card — hugs its content, dark header, numbered rows */
+.speccard{border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+  background:var(--surface); box-shadow:var(--shadow-card)}
+.speccard-head{background:var(--brand-deep); color:#fff; padding:1.15rem 1.4rem;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem}
+.speccard-head h3{color:#fff; font-size:var(--step-1); margin:0}
+.speccard-head span{font-size:.72rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  color:rgba(255,255,255,.55); white-space:nowrap}
+.speclist{list-style:none; margin:0; padding:.4rem 1.4rem; counter-reset:sp}
+.speclist li{counter-increment:sp; display:flex; gap:.95rem; align-items:flex-start;
+  padding:1rem 0; border-bottom:1px solid var(--line)}
+.speclist li:last-child{border-bottom:0}
+.speclist li::before{content:"0" counter(sp); flex-shrink:0; font-family:var(--font-display);
+  font-size:.82rem; font-weight:600; color:var(--brand);
+  background:var(--brand-tint); border-radius:var(--radius-sm); padding:.32rem .5rem; line-height:1}
+.speclist span{font-size:.94rem; color:var(--ink-soft); line-height:1.55}
+.speccard-foot{background:var(--surface-alt); border-top:1px solid var(--line);
+  padding:1rem 1.4rem; display:flex; align-items:center; justify-content:space-between; gap:.8rem}
+.speccard-foot a{font-size:.9rem; font-weight:600; color:var(--brand); text-decoration:none;
+  border-bottom:1.5px solid transparent}
+.speccard-foot a:hover{border-bottom-color:var(--brand)}
+
+@media (min-width:900px){
+  .aboutgrid{grid-template-columns:1.15fr .85fr}
+  .speccard{position:sticky; top:100px}
+}
+
+/* ---- how it works: roman numeral cards ---------------------------------- */
+.stepcards{display:grid; gap:1.15rem; counter-reset:rn}
+.stepcard{counter-increment:rn; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); padding:1.5rem; display:flex; flex-direction:column; gap:.5rem;
+  transition:border-color .18s ease, box-shadow .18s ease}
+.stepcard:hover{border-color:color-mix(in srgb,var(--brand) 45%,var(--line)); box-shadow:var(--shadow-card)}
+.stepcard::before{content:counter(rn,lower-roman); font-family:var(--font-display); font-style:italic;
+  font-size:var(--step-2); font-weight:500; color:color-mix(in srgb,var(--brand) 55%,var(--ink-faint));
+  line-height:1; margin-bottom:.35rem}
+.stepcard h3{font-size:var(--step-0); font-weight:600}
+.stepcard p{font-size:.92rem; color:var(--ink-soft); margin:0}
+
+/* ---- suitable-for chips -------------------------------------------------- */
+.concernchips{display:flex; flex-wrap:wrap; gap:.6rem; justify-content:center}
+.concernchip{padding:.6rem 1.2rem; border-radius:var(--radius-pill); border:1.5px solid var(--line);
+  background:var(--surface); font-size:.94rem; font-weight:500; color:var(--ink)}
+
+/* ---- six reasons --------------------------------------------------------- */
+.reasongrid{display:grid; gap:1.15rem}
+.reasoncard{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:1.4rem; display:flex; flex-direction:column; gap:.5rem; height:100%}
+.reasoncard-icon{width:42px; height:42px; border-radius:12px; background:var(--brand-tint);
+  color:var(--brand); display:grid; place-items:center; margin-bottom:.3rem}
+.reasoncard-icon svg{width:20px; height:20px; stroke:currentColor; stroke-width:1.8; fill:none;
+  stroke-linecap:round; stroke-linejoin:round}
+.reasoncard h3{font-size:var(--step-0); font-weight:600}
+.reasoncard p{font-size:.91rem; color:var(--ink-soft); margin:0}
+
+/* ---- minimal practitioner rows ------------------------------------------ */
+.docrow{display:flex; align-items:center; gap:1rem; padding:.85rem; background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--radius); text-decoration:none; height:100%;
+  transition:border-color .18s ease, box-shadow .18s ease}
+.docrow:hover{border-color:color-mix(in srgb,var(--brand) 45%,var(--line)); box-shadow:var(--shadow-card)}
+.docrow .media{width:82px; height:92px; flex-shrink:0; border-radius:var(--radius-sm); aspect-ratio:auto}
+.docrow .avatar-initials{font-size:1.5rem}
+.docrow-name{font-family:var(--font-display); font-size:1.02rem; font-weight:600; color:var(--ink);
+  display:block; line-height:1.25}
+.docrow-role{display:block; font-size:.78rem; font-weight:600; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--brand); margin-top:.25rem}
+.docrow-meta{display:block; font-size:.88rem; color:var(--ink-soft); margin-top:.35rem}
+
+@media (min-width:640px){
+  .stepcards{grid-template-columns:repeat(2,1fr)}
+  .reasongrid{grid-template-columns:repeat(2,1fr)}
+}
+@media (min-width:900px){
+  .svchero-grid{grid-template-columns:1.05fr .95fr}
+  .svchero-media{order:0}
+  .stepcards{grid-template-columns:repeat(4,1fr)}
+  .reasongrid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ---- category filter chips --------------------------------------------- */
+.chipbar{display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:clamp(1.6rem,3vw,2.2rem)}
+.chip{padding:.5rem 1rem; border-radius:var(--radius-pill); border:1.5px solid var(--line);
+  background:var(--surface); font-size:.9rem; font-weight:600; color:var(--ink-soft); cursor:pointer;
+  transition:border-color .18s ease, background-color .18s ease, color .18s ease}
+.chip:hover{border-color:var(--brand); color:var(--brand)}
+.chip[aria-pressed="true"]{background:var(--brand); border-color:var(--brand); color:#fff}
+.card[hidden]{display:none}
+.emptynote{padding:2rem; text-align:center; color:var(--ink-faint); font-size:.95rem}
+
+/* ---- quick facts strip -------------------------------------------------- */
+.quickfacts{display:grid; gap:0; border:1px solid var(--line); border-radius:var(--radius);
+  background:var(--surface); overflow:hidden}
+.qf{padding:1.1rem 1.3rem; border-bottom:1px solid var(--line)}
+.qf:last-child{border-bottom:0}
+.qf-label{display:block; font-size:.76rem; font-weight:600; color:var(--ink-faint); margin-bottom:.15rem}
+.qf-value{font-family:var(--font-display); font-size:var(--step-1); font-weight:600; color:var(--ink)}
+
+/* ---- service detail layout --------------------------------------------- */
+.detail-layout{display:grid; gap:2.2rem; align-items:start}
+.detail-main{min-width:0}
+.detail-main > section{margin-bottom:clamp(2.2rem,4vw,3.2rem)}
+.detail-main > section:last-child{margin-bottom:0}
+.detail-main h2{font-size:var(--step-2); margin-bottom:.9rem}
+.detail-main h3{font-size:var(--step-1)}
+.answerfirst{font-size:var(--step-1); line-height:1.55; color:var(--ink); font-weight:500;
+  padding-left:1.1rem; border-left:3px solid var(--brand)}
+.bookcard{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:1.4rem; box-shadow:var(--shadow-card)}
+.bookcard-price{font-family:var(--font-display); font-size:var(--step-3); font-weight:600;
+  color:var(--ink); line-height:1}
+.bookcard-price small{display:block; font-family:var(--font-body); font-size:.8rem;
+  font-weight:400; color:var(--ink-faint); margin-bottom:.3rem}
+.bookcard-actions{display:grid; gap:.6rem; margin:1.2rem 0}
+.bookcard hr{border:0; border-top:1px solid var(--line); margin:1.2rem 0}
+.bookcard-list{list-style:none; margin:0; padding:0; display:grid; gap:.55rem; font-size:.89rem;
+  color:var(--ink-soft)}
+.bookcard-list li{display:flex; justify-content:space-between; gap:.8rem}
+.bookcard-list b{color:var(--ink); font-weight:600; text-align:right}
+
+/* ---- checklists --------------------------------------------------------- */
+.checklist{list-style:none; margin:0; padding:0; display:grid; gap:.7rem}
+.checklist li{display:flex; gap:.7rem; align-items:flex-start; font-size:.96rem; color:var(--ink-soft)}
+.checklist .mark{width:22px; height:22px; flex-shrink:0; margin-top:.15rem; border-radius:50%;
+  display:grid; place-items:center; background:var(--brand-tint)}
+.checklist .mark svg{width:11px; height:11px; stroke:var(--brand); stroke-width:3; fill:none;
+  stroke-linecap:round; stroke-linejoin:round}
+.checklist.is-caution .mark{background:color-mix(in srgb,var(--accent) 22%,transparent)}
+.checklist.is-caution .mark svg{stroke:color-mix(in srgb,var(--accent) 70%,var(--ink))}
+
+/* ---- numbered expectation steps ---------------------------------------- */
+.exsteps{display:grid; gap:1.2rem; counter-reset:ex}
+.exstep{display:flex; gap:1rem; align-items:flex-start; counter-increment:ex}
+.exstep::before{content:counter(ex); flex-shrink:0; width:34px; height:34px; border-radius:50%;
+  background:var(--brand); color:#fff; display:grid; place-items:center;
+  font-family:var(--font-display); font-weight:600; font-size:.92rem}
+.exstep p{font-size:.94rem; color:var(--ink-soft); margin:.3rem 0 0}
+
+.tablewrap{overflow-x:auto; -webkit-overflow-scrolling:touch}
+.tablewrap .pricetable{min-width:420px}
+
+/* ---- pricing table ------------------------------------------------------ */
+.pricetable{width:100%; border-collapse:collapse; font-size:.95rem}
+.pricetable th,.pricetable td{text-align:left; padding:.85rem .9rem; border-bottom:1px solid var(--line)}
+.pricetable thead th{font-size:.78rem; font-weight:600; color:var(--ink-faint); background:var(--surface-alt)}
+.pricetable td:last-child,.pricetable th:last-child{text-align:right; font-weight:600; white-space:nowrap}
+.pricetable tbody tr:last-child td{border-bottom:0}
+.pricenote{font-size:.85rem; color:var(--ink-faint); margin-top:.8rem}
+
+/* ---- category tag ------------------------------------------------------- */
+.tagchip{display:inline-block; padding:.3rem .8rem; border-radius:var(--radius-pill);
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3); color:#fff;
+  font-size:.8rem; font-weight:600; margin-bottom:1rem}
+
+@media (min-width:640px){
+  .quickfacts{grid-template-columns:repeat(2,1fr)}
+  .qf{border-bottom:1px solid var(--line); border-right:1px solid var(--line)}
+  .qf:nth-child(2n){border-right:0}
+  .qf:nth-last-child(-n+2){border-bottom:0}
+}
+@media (min-width:900px){
+  .quickfacts{grid-template-columns:repeat(4,1fr)}
+  .qf{border-bottom:0; border-right:1px solid var(--line)}
+  .qf:last-child{border-right:0}
+  .detail-layout{grid-template-columns:1.35fr .65fr; gap:3rem}
+  .detail-aside{position:sticky; top:100px}
+}
+
+@media (min-width:640px){
+  .methods{grid-template-columns:repeat(2,1fr)}
+  .credgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media (min-width:900px){
+  .pagehero-grid{grid-template-columns:1.1fr .9fr}
+  .storysplit{grid-template-columns:.9fr 1.1fr}
+  .storysplit .story-media{order:0; aspect-ratio:auto; height:100%; min-height:420px}
+  .mv-grid{grid-template-columns:1fr 1fr}
+  .credgrid{grid-template-columns:repeat(4,1fr)}
+  .htimeline{grid-template-columns:repeat(5,1fr); gap:1.4rem}
+  .methods{grid-template-columns:repeat(4,1fr)}
+  .contact-layout{grid-template-columns:1.3fr .7fr; gap:2.5rem}
+  .timeline{grid-template-columns:1fr}
+}
+/* site-wide page links */
+@media (min-width:1000px){ .footer-grid{grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr} }
+#menu-pages .menu-grid{grid-template-columns:repeat(3,1fr)}
+.nav-link[aria-current="page"]{color:var(--brand)}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="announce" id="announce" data-field="announcement.text">
+  <span data-content="announce"></span>
+  <a href="index.html#book" data-field="announcement.linkLabel">Book now</a>
+  <button class="announce-close" aria-label="Dismiss" onclick="document.getElementById('announce').remove()">&times;</button>
+</div>
+
+
+<header class="masthead">
+  <div class="container masthead-inner">
+    <a class="brand" href="index.html" data-field="brand.logo">
+      <span class="brand-mark" data-content="mark"></span>
+      <span>
+        <span class="brand-name" data-content="brandName"></span>
+        <span class="brand-tag" data-content="brandTag"></span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <ul>
+        <li><a class="nav-link" href="index.html" data-field="nav.item">Home</a></li>
+        <li><button class="nav-link has-menu" aria-expanded="false" aria-controls="menu-services" data-field="nav.servicesDropdown">
+          <span data-content="navServices"></span>
+          <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </button></li>
+        <li><button class="nav-link has-menu" aria-expanded="false" aria-controls="menu-locations" data-field="nav.locationsDropdown">
+          Locations
+          <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </button></li>
+        <li><a class="nav-link" href="about.html" data-field="nav.item">About</a></li>
+        <li><a class="nav-link" href="blog.html" data-field="nav.item">Advice</a></li>
+        <li><a class="nav-link" href="contact.html" data-field="nav.item">Contact</a></li>
+        <li><button class="nav-link has-menu" aria-expanded="false" aria-controls="menu-pages">
+          All pages
+          <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </button></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a class="header-phone" href="tel:+910000000000" data-field="business.phone">
+        <span>Call us</span><span data-content="mainPhone"></span>
+      </a>
+      <a class="btn btn-primary btn-sm" href="index.html#book" data-field="header.ctaLabel" data-content="heroCta1"></a>
+      <button class="burger" aria-label="Open menu" aria-expanded="false" id="burger"><i></i><i></i><i></i></button>
+    </div>
+  </div>
+
+  <div class="container" style="position:relative">
+    <div class="menu" id="menu-services" data-open="false">
+      <div class="menu-grid" data-content="menuServices"></div>
+      <div class="menu-foot">
+        <p data-content="svcIntroShort"></p>
+        <a class="btn btn-secondary btn-sm" href="services.html">See all</a>
+      </div>
+    </div>
+    <!-- Locations dropdown and the homepage section share one data source -->
+    <div class="menu menu-loc" id="menu-locations" data-open="false" style="max-width:560px">
+      <div class="menu-grid menu-grid-2" data-content="menuLocations"></div>
+      <div class="menu-foot">
+        <p>Every location has its own page, hours and directions.</p>
+        <a class="btn btn-secondary btn-sm" href="contact.html#locations">All locations</a>
+      </div>
+    </div>
+    <div class="menu" id="menu-pages" data-open="false" style="max-width:640px; left:auto">
+      <div class="menu-grid"><a class="menu-item" href="index.html"><strong>Home</strong><span>Homepage overview</span></a><a class="menu-item" href="about.html"><strong>About</strong><span>Our story and values</span></a><a class="menu-item" href="services.html"><strong>Services</strong><span>All treatments</span></a><a class="menu-item" href="service.html"><strong>Service detail</strong><span>Single treatment page</span></a><a class="menu-item" href="team.html"><strong>Team</strong><span>Meet the clinicians</span></a><a class="menu-item" href="member.html"><strong>Team member</strong><span>Individual profile</span></a><a class="menu-item" href="results.html"><strong>Results</strong><span>Outcomes and case studies</span></a><a class="menu-item" href="gallery.html"><strong>Gallery</strong><span>Photos of the clinic</span></a><a class="menu-item" href="blog.html"><strong>Advice</strong><span>Blog and articles</span></a><a class="menu-item" href="blog-details.html"><strong>Article</strong><span>Single blog post</span></a><a class="menu-item" href="contact.html"><strong>Contact</strong><span>Get in touch & locations</span></a></div>
+    </div>
+  </div>
+</header>
+
+
+<div class="drawer" id="drawer" data-open="false">
+  <div class="drawer-scrim" data-close-drawer></div>
+  <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="drawer-head">
+      <span class="brand-name" data-content="brandName"></span>
+      <button class="iconbtn" aria-label="Close" data-close-drawer>&times;</button>
+    </div>
+    <div class="drawer-body">
+      <a href="index.html">Home</a>
+      <details><summary data-content="navServices"></summary><div data-content="drawerServices"></div></details>
+      <details><summary>Locations</summary><div data-content="drawerLocations"></div></details>
+      <a href="about.html">About</a>
+      <a href="blog.html">Advice</a>
+      <a href="contact.html">Contact</a>
+      <details><summary>All pages</summary><div><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="service.html">Service detail</a><a href="team.html">Team</a><a href="member.html">Team member</a><a href="results.html">Results</a><a href="gallery.html">Gallery</a><a href="blog.html">Advice</a><a href="blog-details.html">Article</a><a href="contact.html">Contact</a></div></details>
+    </div>
+    <div class="drawer-foot">
+      <a class="btn btn-primary btn-block" href="index.html#book" data-content="heroCta1"></a>
+      <a class="btn btn-secondary btn-block" href="tel:+910000000000"><span data-content="callLabel"></span></a>
+    </div>
+  </div>
+</div>
+
+
+
+<main id="main">
+
+<!-- ══ HERO — copy left, service image right, dynamic background ═════════ -->
+<section class="pagehero">
+  <div class="media" data-field="service.heroBackground" data-img="service.heroBackground" data-dims="1920 × 800"></div>
+  <div class="pagehero-scrim"></div>
+  <div class="container pagehero-inner svchero-grid">
+    <div>
+      <ul class="crumbs" data-field="breadcrumb">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="./services.html" data-content="navServices"></a></li>
+        <li><span aria-current="page" data-content="dName"></span></li>
+      </ul>
+      <span class="tagchip" data-field="service.category" data-content="dCat"></span>
+      <h1 data-field="service.h1" data-content="dName2"></h1>
+      <p class="lede" data-field="service.lede" data-content="dLede"></p>
+      <div class="herofacts" data-content="dHeroFacts" data-field="service.quickFacts"></div>
+      <div class="svchero-cta">
+        <a class="btn btn-primary" href="#enquiry" data-field="service.primaryCta" data-content="heroCta1"></a>
+        <a class="btn btn-ghost-light" href="tel:+910000000000" data-field="service.callCta" data-content="callLabel"></a>
+      </div>
+    </div>
+    <div class="svchero-media media" data-field="service.image" data-img="service.image" data-dims="1000 × 750"></div>
+  </div>
+</section>
+
+<!-- ══ ABOUT THE SERVICE ═════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container aboutgrid">
+    <div>
+      <div class="seclabel" data-field="service.aboutLabel">About the treatment</div>
+      <h2 data-content="dName3" data-field="service.aboutHeading"></h2>
+      <div class="keypoint" data-field="service.directAnswer">
+        <span class="keypoint-tag" data-field="service.answerLabel">In short</span>
+        <p data-content="dAnswer"></p>
+      </div>
+      <div class="prose" style="margin-top:1.6rem" data-field="service.overview" data-content="dOverview"></div>
+      <div class="aboutcta">
+        <a class="btn btn-primary" href="#enquiry" data-content="heroCta1"></a>
+        <a class="linkarrow" href="#steps" data-field="service.secondaryLink">See how it works</a>
+      </div>
+    </div>
+
+    <aside class="speccard" data-field="service.whatWorks">
+      <div class="speccard-head">
+        <h3 data-field="service.whatWorksHeading">What makes it work</h3>
+        <span data-content="dWorkCount"></span>
+      </div>
+      <ul class="speclist" data-content="dWork"></ul>
+      <div class="speccard-foot">
+        <a href="#enquiry" data-content="dSpecLink"></a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════════════════════════ -->
+<section class="section section-tinted">
+  <div class="container">
+    <div class="section-head sec-center">
+      <div class="seclabel">How it works</div>
+      <h2 data-field="service.stepsHeading" data-content="dStepsHeading"></h2>
+      <p data-field="service.stepsIntro" data-content="dStepsIntro"></p>
+    </div>
+    <div class="stepcards" data-content="dSteps" data-field="service.steps"></div>
+  </div>
+</section>
+
+<!-- ══ SUITABLE FOR ══════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head sec-center">
+      <div class="seclabel">Suitable for</div>
+      <h2 data-field="service.suitableHeading" data-content="dSuitHeading"></h2>
+      <p data-field="service.suitableIntro" data-content="dSuitIntro"></p>
+    </div>
+    <div class="concernchips" data-content="dChips" data-field="service.concerns"></div>
+  </div>
+</section>
+
+<!-- ══ WHY CHOOSE THIS ═══════════════════════════════════════════════════ -->
+<section class="section section-tinted">
+  <div class="container">
+    <div class="section-head sec-center">
+      <div class="seclabel">Why choose this</div>
+      <h2 data-field="service.reasonsHeading" data-content="dReasonsHeading"></h2>
+    </div>
+    <div class="reasongrid" data-content="dReasonCards" data-field="service.reasons"></div>
+  </div>
+</section>
+
+<!-- ══ GOOD TO KNOW + AFTERCARE ══════════════════════════════════════════ -->
+<section class="section">
+  <div class="container grid grid-2" style="gap:clamp(2rem,4vw,3.5rem); align-items:start">
+    <div>
+      <div class="seclabel">Before you book</div>
+      <h2 data-field="service.cautionHeading">Things to know first</h2>
+      <ul class="checklist is-caution" style="margin-top:1.1rem" data-content="dCaution" data-field="service.considerations"></ul>
+    </div>
+    <div>
+      <div class="seclabel">Afterwards</div>
+      <h2 data-field="service.aftercareHeading">Aftercare</h2>
+      <ul class="checklist" style="margin-top:1.1rem" data-content="dAftercare" data-field="service.aftercare"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PERFORMED BY — minimal practitioner rows, slider when several ═════ -->
+<section class="section section-tinted">
+  <div class="container">
+    <div class="section-head sec-center">
+      <div class="seclabel">Performed by</div>
+      <h2 data-field="service.teamHeading" data-content="dTeamHeading"></h2>
+      <p data-field="service.teamIntro" data-content="dTeamIntro"></p>
+    </div>
+    <div class="slider" data-slider>
+      <div class="slider-track" data-track data-content="docRows" data-field="service.practitioners"></div>
+      <div class="slider-foot">
+        <div class="slider-dots" data-dots></div>
+        <div class="slider-arrows">
+          <button class="sarrow" data-prev aria-label="Previous"><svg viewBox="0 0 16 16"><path d="M10 2L4 8l6 6"/></svg></button>
+          <button class="sarrow" data-next aria-label="Next"><svg viewBox="0 0 16 16"><path d="M6 2l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FAQ ═══════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="faq-layout">
+      <div>
+        <div class="seclabel">Frequently asked</div>
+        <div class="section-head"><h2 data-field="faq.heading" data-content="dFaqHeading"></h2></div>
+        <div class="faq" data-content="dFaqItems" data-field="faq.items"></div>
+      </div>
+      <aside class="faqcta" data-field="faq.ctaCard">
+        <h3 data-content="faqCtaHeading"></h3>
+        <p data-content="faqCtaBody"></p>
+        <div class="faqcta-actions">
+          <a class="btn btn-primary btn-block" href="#enquiry" data-content="heroCta1"></a>
+          <a class="btn btn-ghost-light btn-block" href="tel:+910000000000" data-content="callLabel"></a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ENQUIRY (GHL slot) ════════════════════════════════════════════════ -->
+<section class="section section-tinted" id="enquiry">
+  <div class="container">
+    <div class="contact-layout">
+      <div class="formslot">
+        <h2 data-field="service.formHeading" data-content="dFormHeading"></h2>
+        <p class="sub" data-field="service.formSubtext" data-content="formSub2"></p>
+        <div data-form-slot data-field="service.formEmbed"></div>
+      </div>
+      <div>
+        <div class="sidecard"><h3>What happens next</h3><ol class="nextsteps" data-content="nextStepItems"></ol></div>
+        <div class="sidecard"><h3>Where we offer this</h3><table class="hours"><tbody data-content="hoursRows"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ RELATED ═══════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head sec-center">
+      <div class="seclabel">Related</div>
+      <h2 data-field="service.relatedHeading">Often considered alongside</h2>
+    </div>
+    <div class="grid grid-3" data-content="dRelated" data-field="service.related"></div>
+  </div>
+</section>
+
+<!-- ══ CLOSING CTA ═══════════════════════════════════════════════════════ -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="ctaband">
+      <div class="media" data-field="cta.backgroundImage" data-img="cta.backgroundImage" data-dims="1600 × 700"></div>
+      <div class="ctaband-scrim"></div>
+      <div class="ctaband-inner">
+        <h2 data-content="dCtaHeading"></h2>
+        <p data-content="ctaBody"></p>
+        <div class="ctaband-actions">
+          <a class="btn btn-onbrand btn-lg" href="#enquiry" data-content="heroCta1"></a>
+          <a class="btn btn-ghost-light btn-lg" href="tel:+910000000000" data-content="callLabel"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html" style="margin-bottom:.9rem">
+          <span class="brand-mark" data-content="mark"></span>
+          <span class="brand-name" data-content="brandName"></span>
+        </a>
+        <p style="font-size:.92rem" data-field="footer.about" data-content="footerAbout"></p>
+        <div class="social" data-field="footer.socialLinks">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 3.3.15 4.8 1.7 5 5 .06 1.3.07 1.7.07 4.9s0 3.6-.07 4.9c-.15 3.3-1.7 4.8-5 5-1.3.06-1.7.07-4.9.07s-3.6 0-4.9-.07c-3.3-.15-4.8-1.7-5-5C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.9c.15-3.3 1.7-4.8 5-5C8.4 2.2 8.8 2.2 12 2.2zm0 3.2a6.6 6.6 0 100 13.2 6.6 6.6 0 000-13.2zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.9-11.1a1.55 1.55 0 11-3.1 0 1.55 1.55 0 013.1 0z"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 10-11.6 9.9v-7h-2.5V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.76-1.6 1.54V12h2.7l-.43 2.9h-2.3v7A10 10 0 0022 12z"/></svg></a>
+        </div>
+      </div>
+      <div><h6 data-content="navServices"></h6><ul data-content="footerServices"></ul></div>
+      <div><h6>Locations</h6><ul data-content="footerLocations"></ul></div>
+      <div><h6>Pages</h6><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="services.html">Services</a></li><li><a href="service.html">Service detail</a></li><li><a href="team.html">Team</a></li><li><a href="member.html">Team member</a></li><li><a href="results.html">Results</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="blog.html">Advice</a></li><li><a href="blog-details.html">Article</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div>
+        <h6>Contact</h6>
+        <address data-field="footer.nap" data-content="footerNap"></address>
+        <div style="margin-top:1rem"><a class="btn btn-onbrand btn-sm" href="index.html#bookform" data-content="heroCta1"></a></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-field="footer.copyright" data-content="copyright"></span>
+      <div class="footer-legal" data-field="footer.policyLinks">
+        <a href="#">Privacy notice</a><a href="#">Terms</a>
+        <a href="#">Disclaimer</a><a href="#">Grievance officer</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<nav class="actionbar" aria-label="Quick actions">
+  <a href="tel:+910000000000"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 1.9.6 2.8a2 2 0 01-.5 2.1L8.1 9.8a16 16 0 006 6l1.2-1.1a2 2 0 012.1-.5c.9.3 1.8.5 2.8.6a2 2 0 011.8 2.1z"/></svg>Call</a>
+  <a href="contact.html"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-9 8.4 8.5 8.5 0 01-3.9-.9L3 20.5l1.5-4.9A8.4 8.4 0 0112 3.1a8.4 8.4 0 019 8.4z"/></svg>WhatsApp</a>
+  <a class="primary" href="index.html#bookform"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M3 10h18M8 2.5v4M16 2.5v4"/></svg><span data-content="heroCta1"></span></a>
+</nav>
+
+<div class="popup" id="popup" data-open="false">
+  <div class="popup-scrim" data-close-popup></div>
+  <div class="popup-card" role="dialog" aria-modal="true" aria-labelledby="popup-h">
+    <button class="iconbtn popup-close" aria-label="Close" data-close-popup>&times;</button>
+    <div class="media ratio-thumb" style="border-radius:0" data-field="popup.image" data-img="popup.image" data-dims="900 × 600"></div>
+    <div class="popup-body">
+      <h3 id="popup-h" data-field="popup.heading" data-content="popupHeading"></h3>
+      <p data-field="popup.body" data-content="popupBody"></p>
+      <div class="field" style="margin:1rem 0 .8rem"><label for="p-phone">Phone number</label><input id="p-phone" type="tel" placeholder="Your number"></div>
+      <button class="btn btn-primary btn-block" data-field="popup.ctaLabel" onclick="closePopup()">Request a callback</button>
+      <p class="popup-fineprint" data-field="popup.fineprint">We will only use your number to respond to this request.</p>
+    </div>
+  </div>
+</div>
+
+
+<div class="panel" id="panel" data-open="false">
+  <button class="panel-toggle" onclick="const p=document.getElementById('panel');p.dataset.open=p.dataset.open==='true'?'false':'true'">
+    <span>Template controls</span><span>&#9881;</span>
+  </button>
+  <div class="panel-inner">
+    <div>
+      <h6>Business type</h6>
+      <div class="panel-verticals">
+        <button class="vbtn" aria-pressed="true"  onclick="setVertical('clinic',this)">Skin clinic</button>
+        <button class="vbtn" aria-pressed="false" onclick="setVertical('carwash',this)">Car wash</button>
+        <button class="vbtn" aria-pressed="false" onclick="setVertical('legal',this)">Law firm</button>
+        <button class="vbtn" aria-pressed="false" onclick="setVertical('garden',this)">Landscaping</button>
+      </div>
+      <p class="panel-note" style="margin-top:.6rem">Same HTML and CSS. Only tokens and content change.</p>
+    </div>
+    <div>
+      <h6>Brand colours</h6>
+      <div class="swatches">
+        <label class="swatch">Primary <input type="color" value="#245C4C" oninput="setToken('--brand',this.value)"></label>
+        <label class="swatch">Booking CTA <input type="color" value="#F0B429" oninput="setToken('--accent',this.value)"></label>
+        <label class="swatch">Text <input type="color" value="#16241F" oninput="setToken('--ink',this.value)"></label>
+        <label class="swatch">Page background <input type="color" value="#FFFFFF" oninput="setToken('--surface',this.value)"></label>
+        <label class="swatch">Section background <input type="color" value="#F4F7F5" oninput="setToken('--surface-alt',this.value)"></label>
+      </div>
+    </div>
+    <div>
+      <h6>Shape</h6>
+      <div class="panel-row"><span>Corner radius</span>
+        <input type="range" min="0" max="26" value="14" oninput="setToken('--radius',this.value+'px');setToken('--radius-sm',Math.round(this.value*.65)+'px')">
+      </div>
+    </div>
+    <div>
+      <h6>Images</h6>
+      <label class="switch"><input type="checkbox" onchange="document.body.classList.toggle('has-images',this.checked)"> Simulate uploaded images</label>
+      <p class="panel-note" style="margin-top:.5rem">Off = no image uploaded, so the themed brand background is used. Every slot is a field.</p>
+    </div>
+    <div>
+      <h6>Form source</h6>
+      <label class="switch"><input type="checkbox" onchange="document.body.classList.toggle('ghl-mode',this.checked);document.querySelectorAll('[data-form-slot]').forEach(renderFormSlot)"> Use GoHighLevel embed</label>
+      <p class="panel-note" style="margin-top:.5rem">Off = native form posting to /api/lead. On = GHL iframe slot.</p>
+    </div>
+    <div>
+      <h6>Content model</h6>
+      <label class="switch"><input type="checkbox" onchange="document.body.classList.toggle('annotate',this.checked)"> Show field names</label>
+      <p class="panel-note" style="margin-top:.5rem">Turn on, then hover any element to see its field.</p>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ===========================================================================
+   CONTENT — one structure, four business types.
+   Locations are a single array powering the nav dropdown, the homepage
+   section, the booking form select, the drawer and the footer.
+   =========================================================================== */
+const CONTENT = {
+clinic:{
+  mark:"MS", brandName:"Meridian Skin", brandTag:"Dermatology & laser clinic",
+  announce:"Now accepting new patients at all four clinics",
+  navServices:"Treatments", callLabel:"Call 011 4000 0000", mainPhone:"011 4000 0000",
+  heroTitle:"Skin care that starts with a proper diagnosis",
+  heroSub:"Board-certified dermatologists across four Delhi NCR clinics. Same-week consultations, honest advice, and a plan built around your skin rather than a package.",
+  heroCta1:"Book a consultation", heroCta2:"Browse treatments",
+  heroRating:"4.8 from 2,412 Google reviews",
+  heroPoints:[
+    ["shield","Consultation before treatment","A dermatologist assesses your skin and explains the options, including when a treatment is not needed."],
+    ["clock","Seen within the same week","Most consultations are available within five working days across our four clinics."],
+    ["users","The same doctor each visit","Continuity matters for skin. You are not passed between clinicians between appointments."]
+  ],
+  statsHeading:"A clinic people come back to",
+  statsIntro:"The numbers behind how we work, updated each quarter.",
+  stats:[
+    ["calendar","Established","2014","Eleven years in Delhi NCR","Founded by Dr Anita Rao"],
+    ["pin","Clinics","4","Across Delhi, Gurugram and Noida","All with parking"],
+    ["star","Google rating","4.8","From 2,412 reviews","Average across all clinics"],
+    ["clock","Typical wait","5 days","For a first consultation","Urgent slots held daily"]
+  ],
+  svcHeading:"Treatments we offer", svcIntroShort:"Not sure which is right? Start with a consultation.",
+  svcIntro:"Each treatment has its own page explaining what it involves, who it suits and what to expect afterwards.",
+  svcAll:"See all treatments",
+  services:[
+    ["Acne and acne scarring","Medical treatment for active acne, plus resurfacing once it settles.","From ₹1,500"],
+    ["Pigmentation and melasma","Assessment of what is driving the pigmentation, then a plan to manage it.","From ₹2,500"],
+    ["Laser hair reduction","Course-based treatment with a patch test at the first visit.","From ₹2,000"],
+    ["Eczema and psoriasis","Long-term management for chronic skin conditions.","From ₹1,200"],
+    ["Skin checks and moles","Dermoscopy-led examination and ongoing monitoring.","From ₹1,800"],
+    ["Anti-ageing treatments","Consultation-led options, explained honestly including their limits.","From ₹6,000"]
+  ],
+  bookHeading:"Book a consultation this week",
+  bookSub:"Choose a time that suits you, or speak to someone at the clinic. Both take about a minute.",
+  bookPoints:["No payment needed to hold a slot","Written costs before anything begins","Free to reschedule up to 24 hours before"],
+  phoneNote:"Reception, Monday to Saturday, 10am–8pm",
+  formHeading:"Request an appointment", formSub:"Fill this in and we will confirm your slot by phone or WhatsApp within one working day.",
+  bookFieldService:"Treatment", messageLabel:"Anything we should know?",
+  consentText:"I agree to be contacted about this request and have read the privacy notice. Please do not include medical details here.",
+  submitLabel:"Request my appointment", formNote:"We reply within one working day. No obligation.",
+  aboutHeading:"A clinic built around consultation, not upselling",
+  aboutBody:"Meridian Skin was founded in 2014. Our dermatologists see every patient personally, and we will tell you plainly when a treatment is not necessary. That approach has kept people coming back for more than a decade.",
+  team:[
+    ["Dr Anita Rao","MD Dermatology","Founder and lead dermatologist","Anita has practised dermatology for eighteen years and founded the clinic in 2014. She leads our medical dermatology work and sees complex pigmentation and acne cases.",["Acne","Pigmentation","Medical dermatology"],null],
+    ["Dr Vikram Sethi","MD, FAAD","Consultant dermatologist","Vikram trained in the United States and returned to Delhi in 2018. He runs our laser service and oversees patch testing and treatment protocols.",["Laser","Scarring","Patch testing"],null],
+    ["Dr Neha Kulkarni","MBBS, DDVL","Consultant dermatologist","Neha works across our Gurugram and Noida clinics, with a particular interest in chronic conditions such as eczema and psoriasis in adults and children.",["Eczema","Psoriasis","Paediatric skin"],null],
+    ["Dr Arjun Menon","MD Dermatology","Consultant dermatologist","Arjun leads our skin cancer screening service and runs dermoscopy clinics at Greater Kailash and Vasant Vihar.",["Skin checks","Dermoscopy","Mole mapping"],null]
+  ],
+  locHeading:"Where to find us",
+  locIntro:"Four clinics across Delhi NCR. Each has its own page with directions, parking and team.",
+  locations:[
+    ["Greater Kailash","South Delhi","M-12, GK-1 Main Market, New Delhi 110048","Mon–Sat, 10am–8pm","011 4000 0001","Open until 8pm"],
+    ["Vasant Vihar","South West Delhi","C-4, Poorvi Marg, New Delhi 110057","Mon–Sat, 10am–7pm","011 4000 0002","Open until 7pm"],
+    ["Sector 29, Gurugram","Gurugram","SCO 18, Leisure Valley Road, Gurugram 122002","Mon–Sun, 10am–8pm","0124 400 0003","Open 7 days"],
+    ["Noida Sector 18","Noida","B-24, Atta Market, Noida 201301","Mon–Sat, 10am–7pm","0120 400 0004","Open until 7pm"]
+  ],
+  revHeading:"What people say", revIntro:"Reviews are pulled from our Google Business Profile and shown as posted.",
+  reviews:[
+    [5,"Went in expecting to be sold a package and instead got a straight answer and a simple plan. Booking online took a minute.","Priya M.","Acne consultation"],
+    [5,"Reception called to confirm, sent a reminder the day before, and I was seen on time. Small things, but rare.","Rahul S.","Laser hair reduction"],
+    [5,"Explained what was actually causing the problem rather than just handing over a prescription. Clear about cost too.","Ananya K.","Pigmentation"],
+    [4,"Very thorough skin check. The doctor took time to explain what each mole was and what to watch for.","Deepak T.","Skin check"],
+    [5,"My daughter's eczema has been manageable for the first time in years. Genuinely grateful.","Sunita R.","Eczema"]
+  ],
+  faqHeading:"Common questions", faqIntro:"If your question is not here, call the clinic and we will answer it.",
+  faq:[
+    ["Do I need a referral to book?","No. You can book a consultation directly through this website or by calling the clinic."],
+    ["How long does a first appointment take?","Usually 20 to 30 minutes. That covers examination, a discussion of options and written costs."],
+    ["Will I be treated on the first visit?","Sometimes, but only where appropriate. Many treatments need a patch test or a settling period first."],
+    ["What does a consultation cost?","Consultation fees are listed on each treatment page and confirmed when you book, so there are no surprises."],
+    ["Can I reschedule?","Yes, free of charge up to 24 hours before your appointment, through the link in your confirmation."]
+  ],
+  faqCtaHeading:"Still have a question?",
+  faqCtaBody:"Book a consultation and ask a dermatologist directly, or call and reception will help.",
+  faqCtaLink:"send us a message",
+  blogHeading:"Advice from our team", blogIntro:"Plain-English answers to the questions we are asked most often.",
+  posts:[
+    ["What actually causes adult acne?","Skin health","6 min read"],
+    ["Melasma: why it comes back, and what helps","Pigmentation","5 min read"],
+    ["Questions to ask before any laser treatment","Treatments","4 min read"],
+    ["How to read a skin care ingredient list","Skin health","7 min read"]
+  ],
+  whyHeading:"Why patients stay with us",
+  whyIntro:"Choosing a skin clinic is mostly a question of trust. These are the things you can hold us to.",
+  why:[
+    ["A dermatologist sees you, every visit","Not an assistant, not a therapist. Every consultation is with a qualified dermatologist."],
+    ["Costs in writing before we start","You get the full cost of a plan before anything begins, and it does not change midway."],
+    ["We will tell you not to bother","If a treatment is unlikely to help your skin, we say so, even when you have asked for it."],
+    ["Records shared across all four clinics","Book at whichever clinic suits you. Your history follows you."],
+    ["Reminders and follow-up as standard","Confirmation, a reminder the day before, and a check-in after treatment."]
+  ],
+  ctaHeading:"Ready when you are",
+  ctaBody:"Book online in under a minute, or call and speak to someone at the clinic.",
+  popupHeading:"Not sure where to start?",
+  popupBody:"Leave your number and a member of the team will call you back to talk it through — no cost, no obligation.",
+  footerAbout:"Dermatology and laser care across four Delhi NCR clinics since 2014.",
+  copyright:"© 2026 Meridian Skin Clinic. All rights reserved."
+},
+
+carwash:{
+  mark:"RB", brandName:"RinseBox", brandTag:"Car detailing & valeting",
+  announce:"Monthly plans now available — wash as often as you like",
+  navServices:"Services", callLabel:"Call 022 4000 0000", mainPhone:"022 4000 0000",
+  heroTitle:"Your car, properly cleaned. Booked in sixty seconds.",
+  heroSub:"Hand wash, interior detailing and ceramic coating at four sites across the city. Pick a slot, drop the keys, get on with your day.",
+  heroCta1:"Book a wash", heroCta2:"See our services",
+  heroRating:"4.7 from 1,840 Google reviews",
+  heroPoints:[
+    ["shield","Free rewash within 48 hours","If something is missed, bring the car back and we redo it. No argument, no charge."],
+    ["clock","Your slot is held for you","Book a time and the bay is yours. No queueing on the forecourt on a Sunday morning."],
+    ["users","Trained hands, not a machine","Our team is trained on paint safety, so your finish stays swirl-free."]
+  ],
+  statsHeading:"Why drivers book with us",
+  statsIntro:"How we have been running since 2017.",
+  stats:[
+    ["calendar","Established","2017","Nine years in the city","Started with a single bay"],
+    ["pin","Sites","4","All with waiting lounges","Free wifi and parking"],
+    ["star","Google rating","4.7","From 1,840 reviews","Average across all sites"],
+    ["clock","Express wash","45 min","Typical turnaround","Booked slots only"]
+  ],
+  svcHeading:"What we offer", svcIntroShort:"Not sure what your car needs? Start with an express wash.",
+  svcIntro:"Every service has its own page setting out exactly what is included and how long it takes.",
+  svcAll:"See all services",
+  services:[
+    ["Express exterior wash","Hand wash, wheels, windows and a spray sealant. Under an hour.","From ₹499"],
+    ["Full interior detail","Vacuum, shampoo, leather clean and conditioning throughout the cabin.","From ₹1,999"],
+    ["Ceramic coating","Multi-stage paint correction and a coating that lasts for years.","From ₹14,999"],
+    ["Paint correction","Machine polishing to remove swirls, scratches and oxidation.","From ₹6,499"],
+    ["Engine bay clean","Careful degrease and dress, safe for modern engine bays.","From ₹899"],
+    ["Monthly wash plan","Unlimited express washes at any of our four sites.","₹1,499/mo"]
+  ],
+  bookHeading:"Book a bay, skip the queue",
+  bookSub:"Live availability across all four sites. Pay when you collect, not before.",
+  bookPoints:["No payment taken online","Free rewash within 48 hours","Change your slot any time before the day"],
+  phoneNote:"Bookings line, every day, 8am–8pm",
+  formHeading:"Book your slot", formSub:"Tell us what your car needs and we will confirm your bay by SMS within the hour.",
+  bookFieldService:"Service", messageLabel:"Anything specific we should look at?",
+  consentText:"I agree to be contacted about this booking and have read the privacy notice.",
+  submitLabel:"Book my slot", formNote:"Confirmation by SMS within the hour.",
+  aboutHeading:"A car wash that runs on appointments, not queues",
+  aboutBody:"RinseBox started with one bay in 2017 and now runs four sites. We took the queue out of car washing by running everything on booked slots, which means your time is respected and our team is never rushed into cutting corners.",
+  team:[
+    ["Imran Qureshi","Detailing Guild certified","Founder and lead detailer","Imran opened the first RinseBox bay in 2017 after a decade detailing show cars. He still handles every ceramic coating personally.",["Ceramic coating","Paint correction"],null],
+    ["Sana Kapadia","IDA accredited","Operations manager","Sana runs scheduling across all four sites and trained the team on the paint-safe wash process we use everywhere.",["Training","Scheduling"],null],
+    ["Dev Patil","Senior detailer","Interiors specialist","Dev leads our interior work, from routine valets to full restorations on older cars with fabric and leather damage.",["Interiors","Leather care"],null],
+    ["Farhan Ali","Senior detailer","Site lead, Andheri","Farhan manages the Andheri site and handles our commercial fleet contracts across the city.",["Fleet","Express wash"],null]
+  ],
+  locHeading:"Find your nearest site",
+  locIntro:"Four sites across the city, each with a waiting lounge and free wifi.",
+  locations:[
+    ["Andheri West","Western suburbs","Plot 14, Link Road, Andheri West, Mumbai 400053","Mon–Sun, 8am–8pm","022 4000 0001","Open 7 days"],
+    ["Lower Parel","Central Mumbai","Ground floor, Trade Park, Lower Parel, Mumbai 400013","Mon–Sat, 8am–7pm","022 4000 0002","Open until 7pm"],
+    ["Powai","North East Mumbai","Unit 3, Saki Vihar Road, Powai, Mumbai 400072","Mon–Sun, 8am–8pm","022 4000 0003","Open 7 days"],
+    ["Navi Mumbai","Vashi","Sector 17 Service Road, Vashi, Navi Mumbai 400703","Mon–Sat, 8am–7pm","022 4000 0004","Open until 7pm"]
+  ],
+  revHeading:"What drivers say", revIntro:"Reviews are pulled from our Google Business Profile and shown as posted.",
+  reviews:[
+    [5,"Booked a slot online, dropped the car, picked it up 45 minutes later looking better than when I bought it.","Karthik R.","Express wash"],
+    [5,"They found a scuff I had not even noticed and pointed it out rather than polishing over it. Honest people.","Meera J.","Paint correction"],
+    [5,"The interior detail on a five-year-old car with two kids in it was genuinely astonishing.","Rohit B.","Interior detail"],
+    [4,"Ceramic coating was not cheap but two monsoons later it still beads. Worth it.","Aditya N.","Ceramic coating"],
+    [5,"Monthly plan pays for itself if you wash more than twice. Easy booking every time.","Sneha D.","Monthly plan"]
+  ],
+  faqHeading:"Common questions", faqIntro:"If your question is not here, call us and we will answer it.",
+  faq:[
+    ["Do I need to book, or can I turn up?","Booking is best because it guarantees a bay. Walk-ins are welcome whenever we have space."],
+    ["How long does an express wash take?","Usually 45 minutes. Interior details and coatings take longer and we tell you exactly how long when you book."],
+    ["What if I am not happy with the result?","Bring the car back within 48 hours and we will redo it at no charge."],
+    ["Can I wait while it is done?","Yes. Every site has a waiting lounge with free wifi."],
+    ["Do you take card payment?","Yes, card and UPI at every site. Nothing is charged online."]
+  ],
+  faqCtaHeading:"Ready to book?",
+  faqCtaBody:"Pick a slot at your nearest site, or call and we will find you the next available bay.",
+  faqCtaLink:"send us a message",
+  blogHeading:"Care guides", blogIntro:"Practical advice on keeping your car looking right between visits.",
+  posts:[
+    ["How often should you actually wash your car?","Care guide","4 min read"],
+    ["Ceramic coating vs wax: what is the difference?","Detailing","6 min read"],
+    ["Getting monsoon stains out of upholstery","Interiors","5 min read"],
+    ["Why automatic car washes scratch paint","Care guide","5 min read"]
+  ],
+  whyHeading:"Why drivers keep coming back",
+  whyIntro:"Most car washes compete on price. We compete on not damaging your paint and not wasting your Sunday.",
+  why:[
+    ["Booked slots, so you never queue","Your bay is reserved for your time. Turn up, drop the keys, go."],
+    ["A paint-safe process, every car","Two buckets, fresh mitts per vehicle and no spinning brushes. Ever."],
+    ["Free rewash within 48 hours","Miss a spot and we redo it at no charge. No argument required."],
+    ["You pay after you inspect","Nothing is taken online. We walk around the car with you first."],
+    ["The same trained team at every site","Not casual labour. Every detailer completes our paint-safety programme."]
+  ],
+  ctaHeading:"Book a slot that suits you",
+  ctaBody:"Live availability across all four sites. Pay when you collect.",
+  popupHeading:"First wash, 20% off",
+  popupBody:"Leave your number and we will send a code you can use at any of our four sites.",
+  footerAbout:"Hand car washing and detailing at four sites across the city since 2017.",
+  copyright:"© 2026 RinseBox Detailing. All rights reserved."
+},
+
+legal:{
+  mark:"HW", brandName:"Harlow & West", brandTag:"Solicitors",
+  announce:"Fixed-fee initial consultations now available",
+  navServices:"Practice areas", callLabel:"Call 020 7000 0000", mainPhone:"020 7000 0000",
+  heroTitle:"Clear legal advice, without the billable-hour anxiety",
+  heroSub:"A boutique firm advising individuals and owner-managed businesses. Fixed-fee first consultations, so you know where you stand before you commit to anything.",
+  heroCta1:"Book a consultation", heroCta2:"View practice areas",
+  heroRating:"4.9 from 318 Google reviews",
+  heroPoints:[
+    ["shield","Fees agreed in writing first","You will know the cost before work begins. We do not default to open-ended hourly billing."],
+    ["clock","A response within one working day","Every enquiry is answered by a solicitor, not an automated acknowledgement."],
+    ["users","You deal with your solicitor","Not a case handler. The person you meet is the person doing the work."]
+  ],
+  statsHeading:"How the firm is built",
+  statsIntro:"Deliberately small, so clients deal directly with an experienced solicitor.",
+  stats:[
+    ["calendar","Established","2002","Twenty-four years advising clients","Independent throughout"],
+    ["pin","Offices","4","Across the region","Video meetings available"],
+    ["star","Google rating","4.9","From 318 reviews","Average across all offices"],
+    ["clock","Response time","1 day","To every new enquiry","Answered by a solicitor"]
+  ],
+  svcHeading:"How we can help", svcIntroShort:"Not sure which area you need? Call and we will tell you.",
+  svcIntro:"Each practice area sets out what we do, who we act for, and exactly how fees work.",
+  svcAll:"View all practice areas",
+  services:[
+    ["Wills and probate","Drafting wills, powers of attorney, and administering estates.","Fixed fee"],
+    ["Property and conveyancing","Buying, selling and leasing residential and commercial property.","Fixed fee"],
+    ["Employment law","Advice for employers and employees on contracts, disputes and exits.","From ₹8,000"],
+    ["Family law","Separation, financial arrangements and matters involving children.","From ₹10,000"],
+    ["Commercial contracts","Drafting and reviewing the agreements your business relies on.","From ₹12,000"],
+    ["Dispute resolution","Negotiation, mediation and litigation where matters cannot be settled.","On enquiry"]
+  ],
+  bookHeading:"Speak to a solicitor this week",
+  bookSub:"Book a fixed-fee consultation at a time that suits you, including evenings by arrangement.",
+  bookPoints:["Fixed fee confirmed before you book","Video or in-person, your choice","No obligation to instruct us afterwards"],
+  phoneNote:"Reception, Monday to Friday, 9am–6pm",
+  formHeading:"Request a consultation", formSub:"Tell us briefly what you need and a solicitor will come back to you within one working day.",
+  bookFieldService:"Practice area", messageLabel:"Briefly, what do you need help with?",
+  consentText:"I agree to be contacted about this enquiry and have read the privacy notice. Please do not send confidential details through this form.",
+  submitLabel:"Request a consultation", formNote:"A solicitor responds within one working day.",
+  aboutHeading:"A firm small enough to answer the phone",
+  aboutBody:"Harlow & West was founded in 2002. We deliberately stayed small so clients deal directly with an experienced solicitor rather than being passed down a chain. Most of our work comes from people we have acted for before, or from their recommendations.",
+  team:[
+    ["Rebecca Harlow","LLB, Partner","Founding partner","Rebecca founded the firm in 2002 and leads the private client team, covering wills, probate and estate planning for families and business owners.",["Wills","Probate","Estate planning"],null],
+    ["Daniel West","LLB, Partner","Partner, commercial","Daniel advises owner-managed businesses on contracts, shareholder arrangements and commercial disputes across the region.",["Commercial","Contracts","Disputes"],null],
+    ["Priya Anand","LLM, Senior Associate","Employment law","Priya acts for both employers and employees on contracts, settlement agreements and tribunal matters.",["Employment","Settlements"],null],
+    ["Thomas Reid","LLB, Associate","Property","Thomas handles residential and commercial conveyancing, leases and landlord and tenant matters on fixed fees.",["Conveyancing","Leases"],null]
+  ],
+  locHeading:"Our offices",
+  locIntro:"Four offices across the region, with video consultations available everywhere.",
+  locations:[
+    ["City office","Central","28 Cornhill Chambers, City, EC3V 3ND","Mon–Fri, 9am–6pm","020 7000 0001","Open until 6pm"],
+    ["Riverside","South","4 Wharf Street, Riverside, SE1 9PL","Mon–Fri, 9am–5.30pm","020 7000 0002","Open until 5.30pm"],
+    ["Northgate","North","112 Northgate Road, N7 8QT","Mon–Fri, 9am–5.30pm","020 7000 0003","Open until 5.30pm"],
+    ["Westbrook","West","7 Market Square, Westbrook, W5 2AB","Mon–Fri, 9am–6pm","020 7000 0004","Open until 6pm"]
+  ],
+  revHeading:"What clients say", revIntro:"Reviews are pulled from our Google Business Profile and shown as posted.",
+  reviews:[
+    [5,"Told me at the first meeting that I probably did not need to litigate. Saved me a great deal of money.","J. Whitfield","Dispute resolution"],
+    [5,"The fixed fee was exactly what was quoted. No creeping extras, which was my main worry.","A. Basu","Conveyancing"],
+    [5,"Rebecca explained the whole probate process in plain English at a difficult time. Very grateful.","M. Cole","Probate"],
+    [4,"Quick, clear advice on a settlement agreement with a tight deadline. Responded the same day.","S. Iyer","Employment"],
+    [5,"We have used the firm for the business for six years. They know us and it shows.","P. Nandy","Commercial"]
+  ],
+  faqHeading:"Common questions", faqIntro:"If your question is not here, call and we will answer it before you commit to anything.",
+  faq:[
+    ["How much does a first consultation cost?","Initial consultations are charged at a fixed fee, confirmed when you book. There are no hidden costs."],
+    ["How quickly will someone respond?","Every enquiry receives a response from a solicitor within one working day."],
+    ["Do you offer fixed fees for all work?","Wherever the scope can be defined, yes. Where it cannot, we agree an estimate and update you if it changes."],
+    ["Can we meet outside office hours?","Yes, by arrangement. Evening and video consultations are available at every office."],
+    ["Am I obliged to instruct you afterwards?","No. The consultation stands alone and you are free to take the advice elsewhere."]
+  ],
+  faqCtaHeading:"Want to talk it through?",
+  faqCtaBody:"Book a fixed-fee consultation, or call and we will tell you honestly whether we can help.",
+  faqCtaLink:"send us a message",
+  blogHeading:"Legal insights", blogIntro:"Guidance on the questions clients bring to us most often.",
+  posts:[
+    ["What happens if you die without a will?","Wills & probate","6 min read"],
+    ["Reviewing a commercial lease: what to check","Property","7 min read"],
+    ["Settlement agreements explained","Employment","5 min read"],
+    ["Shareholder disputes: how they usually start","Commercial","6 min read"]
+  ],
+  whyHeading:"Why clients instruct us",
+  whyIntro:"Most people do not fear legal fees. They fear not knowing what the fees will be.",
+  why:[
+    ["Fees agreed in writing first","Scope and cost confirmed before work begins. No open-ended hourly billing by default."],
+    ["Your solicitor does your work","No case handlers. The person you meet at the first meeting is the person on your file."],
+    ["A reply within one working day","Every enquiry is answered by a solicitor, not an automated acknowledgement."],
+    ["We say when not to proceed","If a claim will cost more than it recovers, you will hear that at the first meeting."],
+    ["Small enough to answer the phone","Four offices, sixteen people, and a direct line to the person handling your matter."]
+  ],
+  ctaHeading:"Speak to a solicitor this week",
+  ctaBody:"Book a fixed-fee consultation, or call and we will point you in the right direction.",
+  popupHeading:"Not sure if you need a solicitor?",
+  popupBody:"Leave your number and we will call you back to tell you honestly whether we can help.",
+  footerAbout:"A boutique law firm advising individuals and owner-managed businesses since 2002.",
+  copyright:"© 2026 Harlow & West Solicitors. All rights reserved."
+},
+
+garden:{
+  mark:"GV", brandName:"Greenvale", brandTag:"Garden design & maintenance",
+  announce:"Now booking garden projects for the next planting season",
+  navServices:"Services", callLabel:"Call 080 4000 0000", mainPhone:"080 4000 0000",
+  heroTitle:"Gardens that still look good in year five",
+  heroSub:"Design, planting and year-round maintenance for homes and grounds across the region. We plant for how a garden matures, not how it photographs on day one.",
+  heroCta1:"Book a site visit", heroCta2:"See our services",
+  heroRating:"4.9 from 640 Google reviews",
+  heroPoints:[
+    ["shield","Fixed quotes, held for 90 days","You get a written quote after the site visit. The price does not move unless you change the brief."],
+    ["clock","We turn up when we say","Scheduled visits confirmed the day before, with a rain plan built into every project."],
+    ["users","The same crew on your garden","Continuity means they know your soil, your planting and how you like it kept."]
+  ],
+  statsHeading:"How we work",
+  statsIntro:"Sixteen years of designing, planting and maintaining gardens.",
+  stats:[
+    ["calendar","Established","2009","Sixteen years of planting","Family run throughout"],
+    ["pin","Areas covered","4","Across the region","Free visits within 25km"],
+    ["star","Google rating","4.9","From 640 reviews","Average across all crews"],
+    ["clock","First site visit","Free","Including a written quote","Usually within two weeks"]
+  ],
+  svcHeading:"What we do", svcIntroShort:"Not sure where to start? Book a free site visit.",
+  svcIntro:"Every service has its own page explaining the process, the timeline and how we price it.",
+  svcAll:"See all services",
+  services:[
+    ["Garden design","A full plan with planting schedule, materials and a phased budget.","From ₹25,000"],
+    ["Planting and soft landscaping","Beds, borders, hedging and trees, planted to establish properly.","From ₹18,000"],
+    ["Lawn care","Scarifying, feeding, aeration and seasonal treatment programmes.","From ₹3,500"],
+    ["Hard landscaping","Paths, patios, walls and steps, built to last.","On enquiry"],
+    ["Tree and hedge work","Pruning, shaping and safe removal by trained staff.","From ₹4,000"],
+    ["Maintenance plans","Regular visits through the year to keep everything in shape.","From ₹2,500/mo"]
+  ],
+  bookHeading:"Book a free site visit",
+  bookSub:"We walk the garden, talk about how you use it, and send a fixed written quote afterwards.",
+  bookPoints:["The visit and the quote cost nothing","Fixed price held for 90 days","Anything we plant that fails in season one is replaced free"],
+  phoneNote:"Office, Monday to Saturday, 8am–6pm",
+  formHeading:"Request a site visit", formSub:"Tell us a little about your garden and we will arrange a visit at a time that suits you.",
+  bookFieldService:"Service", messageLabel:"Tell us about your garden",
+  consentText:"I agree to be contacted about this request and have read the privacy notice.",
+  submitLabel:"Request my free visit", formNote:"We confirm within one working day. No obligation.",
+  aboutHeading:"A team that plants for the long term",
+  aboutBody:"Greenvale has been designing and maintaining gardens since 2009. We choose plants for the conditions they will actually face, and we would rather talk you out of something that will struggle than sell it to you twice.",
+  team:[
+    ["Meera Joshi","MSc Landscape Architecture","Founder and lead designer","Meera founded Greenvale in 2009 and leads every design project, from the first site walk through to the planting plan.",["Design","Planting plans"],null],
+    ["Sanjay Bhat","RHS qualified","Head of planting","Sanjay runs the planting crews and specialises in establishing trees and hedging in difficult soil conditions.",["Trees","Hedging","Soil"],null],
+    ["Lakshmi Rao","RHS qualified","Maintenance manager","Lakshmi schedules every maintenance round and looks after our long-standing clients across the region.",["Maintenance","Lawn care"],null],
+    ["Ravi Deshmukh","Certified arborist","Tree surgeon","Ravi handles all pruning, shaping and removals, including work near buildings and power lines.",["Pruning","Tree removal"],null]
+  ],
+  locHeading:"Areas we cover",
+  locIntro:"Four depots across the region. Site visits are free within 25km of any of them.",
+  locations:[
+    ["North depot","Yelahanka","Plot 9, Bellary Road, Yelahanka, Bengaluru 560064","Mon–Sat, 8am–6pm","080 4000 0001","Open until 6pm"],
+    ["East depot","Whitefield","24 Varthur Road, Whitefield, Bengaluru 560066","Mon–Sat, 8am–6pm","080 4000 0002","Open until 6pm"],
+    ["South depot","JP Nagar","62 Kanakapura Road, JP Nagar, Bengaluru 560078","Mon–Sat, 8am–5pm","080 4000 0003","Open until 5pm"],
+    ["West depot","Rajajinagar","11 Magadi Road, Rajajinagar, Bengaluru 560010","Mon–Sat, 8am–5pm","080 4000 0004","Open until 5pm"]
+  ],
+  revHeading:"What clients say", revIntro:"Reviews are pulled from our Google Business Profile and shown as posted.",
+  reviews:[
+    [5,"They talked me out of the planting I asked for and suggested something suited to the shade. Three years on it is thriving.","Anjali S.","Garden design"],
+    [5,"Same two people every fortnight for four years. They know the garden better than I do now.","George M.","Maintenance plan"],
+    [5,"The quote was fixed and it stayed fixed, even when they hit rock under the patio.","Nikhil P.","Hard landscaping"],
+    [4,"Lawn came back from near dead over one season. Clear about what they were doing and why.","Fatima H.","Lawn care"],
+    [5,"Careful, tidy tree work close to the house. Left the site cleaner than they found it.","Ramesh V.","Tree work"]
+  ],
+  faqHeading:"Common questions", faqIntro:"If your question is not here, call the office and we will answer it.",
+  faq:[
+    ["Is the first visit really free?","Yes. The site visit and the written quote cost nothing and carry no obligation."],
+    ["How far ahead should I book?","Design work books up around six weeks ahead. Maintenance can usually start within a fortnight."],
+    ["Do you offer one-off tidy-ups?","Yes, though most clients find a regular plan works out cheaper across a year."],
+    ["What happens if plants do not survive?","Anything we plant that fails in the first season is replaced at no charge."],
+    ["Do you work in winter?","Yes. Winter is the right time for structural work, pruning and bare-root planting."]
+  ],
+  faqCtaHeading:"Thinking about your garden?",
+  faqCtaBody:"Book a free site visit and we will walk it with you, then send a fixed written quote.",
+  faqCtaLink:"send us a message",
+  blogHeading:"From the garden", blogIntro:"Seasonal guidance from the people who look after your garden.",
+  posts:[
+    ["What to plant for shade that actually works","Planting","5 min read"],
+    ["Getting your lawn through a dry summer","Lawn care","6 min read"],
+    ["When to prune, and when to leave it alone","Maintenance","4 min read"],
+    ["Preparing beds before the monsoon","Planting","5 min read"]
+  ],
+  whyHeading:"Why clients stay with us for years",
+  whyIntro:"A garden is a five-year commitment, not a weekend project. We plan for that from the first visit.",
+  why:[
+    ["Right plant, right place","We plant for the soil, light and water your garden actually has."],
+    ["Fixed quotes, held for 90 days","The price does not move unless the brief does, even when the ground surprises us."],
+    ["The same crew on your garden","They learn your soil and your planting, which is why it keeps improving."],
+    ["Failed planting replaced free","Anything we plant that does not take in the first season is replaced at no cost."],
+    ["We turn up when we say","Visits confirmed the day before, with a rain plan built into every project."]
+  ],
+  ctaHeading:"Book a free site visit",
+  ctaBody:"We will walk the garden, talk through options and send a fixed quote.",
+  popupHeading:"Thinking about your garden?",
+  popupBody:"Leave your number and we will call to arrange a free site visit at a time that suits you.",
+  footerAbout:"Garden design, planting and maintenance across the region since 2009.",
+  copyright:"© 2026 Greenvale Gardens. All rights reserved."
+}
+};
+
+const ICONS={
+  shield:'<path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z"/><path d="M9.2 12.2l1.9 1.9 3.7-3.9"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',
+  users:'<path d="M16 20v-1.6a3.4 3.4 0 00-3.4-3.4H6.4A3.4 3.4 0 003 18.4V20"/><circle cx="9.5" cy="7.5" r="3.4"/><path d="M21 20v-1.6a3.4 3.4 0 00-2.6-3.3M15.6 4.2a3.4 3.4 0 010 6.6"/>',
+  calendar:'<rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M3 10h18M8 2.5v4M16 2.5v4"/>',
+  pin:'<path d="M20 10.5c0 5.5-8 11.5-8 11.5s-8-6-8-11.5a8 8 0 1116 0z"/><circle cx="12" cy="10.3" r="2.8"/>',
+  star:'<path d="M12 3l2.7 5.6 6 .8-4.4 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1L3.3 9.4l6-.8z"/>',
+  phone:'<path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 1.9.6 2.8a2 2 0 01-.5 2.1L8.1 9.8a16 16 0 006 6l1.2-1.1a2 2 0 012.1-.5c.9.3 1.8.5 2.8.6a2 2 0 011.8 2.1z"/>'
+};
+const STARSVG='<svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.2 3.2L7 14.2 2 9.4l7-.9z"/></svg>';
+
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const set=(k,html)=>$$(`[data-content="${k}"]`).forEach(el=>el.innerHTML=html);
+
+/* Every image slot renders either the uploaded image or a themed fallback */
+function paintMedia(){
+  $$("[data-img]").forEach(el=>{
+    const src=el.getAttribute("data-src");
+    const field=el.getAttribute("data-img");
+    const dims=el.getAttribute("data-dims")||"";
+    const initials=el.getAttribute("data-initials");
+    if(src){ el.innerHTML=`<img src="${src}" alt="${el.getAttribute("data-alt")||""}">`; return; }
+    // No image uploaded: people get their initials, everything else gets a labelled brand background
+    el.innerHTML = initials
+      ? `<div class="media-fallback avatar-fallback"><span class="avatar-initials">${initials}</span></div>`
+      : `<div class="media-fallback"><p class="media-label">${field}<span>${dims}</span></p></div>`;
+  });
+}
+const initialsOf = n => n.replace(/^(Dr|Mr|Mrs|Ms|Prof)\.?\s+/i,"")
+  .split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+
+function render(v){
+  const c=CONTENT[v];
+  document.documentElement.dataset.vertical=v;
+
+  ["mark","brandName","brandTag","announce","navServices","callLabel","mainPhone","heroTitle","heroSub",
+   "heroCta1","heroCta2","heroRating","statsHeading","statsIntro","svcHeading","svcIntro","svcIntroShort",
+   "svcAll","bookHeading","bookSub","phoneNote","formHeading","formSub","bookFieldService","messageLabel",
+   "consentText","submitLabel","formNote","aboutHeading","aboutBody","locHeading","locIntro","revHeading",
+   "revIntro","faqHeading","faqIntro","faqCtaHeading","faqCtaBody","faqCtaLink","blogHeading","blogIntro",
+   "ctaHeading","ctaBody","popupHeading","popupBody","footerAbout","copyright",
+   "whyHeading","whyIntro"].forEach(k=>set(k,c[k]));
+
+  set("heroStars", STARSVG.repeat(5));
+
+  set("whyPoints", c.why.map(([t,d])=>`
+    <li data-field="why.point">
+      <span class="whyus-check"><svg viewBox="0 0 12 12"><path d="M2 6.3l2.6 2.6L10 3.4"/></svg></span>
+      <div><b data-field="why.point.title">${t}</b><span data-field="why.point.body">${d}</span></div>
+    </li>`).join(""));
+
+  /* change 1 — trust points as cards */
+  set("heroPointCards", c.heroPoints.map(([ic,t,d])=>`
+    <article class="hpcard" data-field="hero.trustCard">
+      <div class="hpcard-icon" data-field="hero.trustCard.icon"><svg viewBox="0 0 24 24">${ICONS[ic]}</svg></div>
+      <h3 data-field="hero.trustCard.title">${t}</h3>
+      <p data-field="hero.trustCard.body">${d}</p>
+    </article>`).join(""));
+
+  /* change 3 — stat cards */
+  set("statCards", c.stats.map(([ic,cat,val,lab,sub])=>`
+    <article class="statcard" data-field="stat.card">
+      <div class="statcard-top"><svg viewBox="0 0 24 24">${ICONS[ic]}</svg><span data-field="stat.category">${cat}</span></div>
+      <div class="stat-value" data-field="stat.value">${val}</div>
+      <div class="stat-label" data-field="stat.label">${lab}</div>
+      <div class="stat-sub" data-field="stat.supporting">${sub}</div>
+    </article>`).join(""));
+
+  /* services */
+  set("serviceCards", c.services.map(([t,d,p])=>`
+    <article class="card" data-field="service.card">
+      <div class="media ratio-thumb" data-field="service.image" data-img="service.image" data-dims="900 × 600"></div>
+      <div class="card-body">
+        <h3 style="font-size:var(--step-1)" data-field="service.name">${t}</h3>
+        <p data-field="service.summary">${d}</p>
+        <span class="svc-price" data-field="service.priceFrom">${p}</span>
+        <div class="card-foot"><a class="linkarrow" href="service.html" data-field="service.linkLabel">Read more</a></div>
+      </div>
+    </article>`).join(""));
+  set("menuServices", c.services.map(([t,d])=>
+    `<a class="menu-item" href="service.html" data-field="nav.serviceItem"><strong>${t}</strong><span>${d.slice(0,42)}…</span></a>`).join(""));
+  set("drawerServices", c.services.map(([t])=>`<a href="service.html">${t}</a>`).join(""));
+  set("footerServices", c.services.slice(0,5).map(([t])=>`<li><a href="service.html">${t}</a></li>`).join(""));
+  set("serviceOptions", c.services.map(([t])=>`<option>${t}</option>`).join(""));
+
+  /* change 4 — team list */
+  set("teamCards", c.team.map(([n,cred,role,bio,tags,photo])=>`
+    <article class="teamcard" data-field="team.member">
+      <div class="media ratio-tall" data-field="team.member.photo" data-img="team.member.photo"
+           data-dims="800 × 1000" data-initials="${initialsOf(n)}" data-alt="${n}"
+           ${photo?`data-src="${photo}"`:""}></div>
+      <div class="teamcard-body">
+        <h3 class="team-name" data-field="team.member.name">${n}</h3>
+        <span class="team-cred" data-field="team.member.credentials">${cred}</span>
+        <span class="team-role" data-field="team.member.role">${role}</span>
+        <p data-field="team.member.bio">${bio}</p>
+        <div class="team-tags" data-field="team.member.specialisms">${tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+        <div class="team-links" data-field="team.member.profileLink"><a href="member.html">View profile</a></div>
+      </div>
+    </article>`).join(""));
+
+  /* change 5 — locations drive nav, section, form and footer from one array */
+  set("locationCards", c.locations.map(([n,area,addr,hours,ph,open])=>`
+    <article class="loccard" data-field="location.card">
+      <div class="loccard-name">
+        <div>
+          <h3 data-field="location.name">${n}</h3>
+          <span class="card-meta" data-field="location.area">${area}</span>
+        </div>
+        <span class="openpill" data-field="location.openStatus">${open}</span>
+      </div>
+      <address data-field="location.address">${addr}</address>
+      <div class="locmeta">
+        <div><svg viewBox="0 0 24 24">${ICONS.clock}</svg><span data-field="location.hours">${hours}</span></div>
+        <div><svg viewBox="0 0 24 24">${ICONS.phone}</svg><a href="tel:${ph.replace(/\s/g,"")}" data-field="location.phone">${ph}</a></div>
+      </div>
+      <div class="loccard-actions">
+        <a class="btn btn-primary btn-sm" href="index.html#bookform" data-field="location.bookCta">Book here</a>
+        <a class="btn btn-secondary btn-sm" href="#" data-field="location.directionsUrl">Directions</a>
+      </div>
+    </article>`).join(""));
+  set("menuLocations", c.locations.map(([n,area,,hours])=>
+    `<a class="menu-item" href="contact.html#locations" data-field="nav.locationItem"><strong>${n}</strong><span>${area} · ${hours}</span></a>`).join(""));
+  set("drawerLocations", c.locations.map(([n])=>`<a href="contact.html#locations">${n}</a>`).join(""));
+  set("footerLocations", c.locations.map(([n])=>`<li><a href="contact.html#locations">${n}</a></li>`).join(""));
+  set("locationOptions", c.locations.map(([n])=>`<option>${n}</option>`).join(""));
+  set("footerNap", `${c.locations[0][2]}<br><a href="tel:${c.mainPhone.replace(/\s/g,"")}">${c.mainPhone}</a>`);
+
+  set("bookPoints", c.bookPoints.map(t=>
+    `<li><span class="tick-light"><svg viewBox="0 0 12 12"><path d="M2 6.3l2.6 2.6L10 3.4"/></svg></span>${t}</li>`).join(""));
+
+  set("reviewCards", c.reviews.map(([r,txt,who,svc])=>`
+    <figure class="review" data-field="review.card">
+      <div class="stars" data-field="review.rating" aria-label="${r} out of 5">${STARSVG.repeat(r)}</div>
+      <span class="review-svc" data-field="review.service">${svc}</span>
+      <blockquote data-field="review.text">${txt}</blockquote>
+      <figcaption><b data-field="review.author">${who}</b> · <span data-field="review.source">Google</span></figcaption>
+    </figure>`).join(""));
+
+  set("faqItems", c.faq.map(([q,a],i)=>`
+    <details data-field="faq.item" ${i===0?"open":""}>
+      <summary data-field="faq.question">${q}</summary>
+      <div class="answer" data-field="faq.answer">${a}</div>
+    </details>`).join(""));
+
+  set("blogCards", c.posts.map(([t,cat,read])=>`
+    <article class="card" data-field="post.card">
+      <div class="media ratio-thumb" data-field="post.image" data-img="post.image" data-dims="900 × 600"></div>
+      <div class="card-body">
+        <span class="card-meta" data-field="post.category">${cat}</span>
+        <h3 class="post-title" data-field="post.title"><a href="blog-details.html">${t}</a></h3>
+        <span class="card-meta" data-field="post.readingTime">${read}</span>
+      </div>
+    </article>`).join(""));
+
+  paintMedia();
+  $$("[data-slider]").forEach(initSlider);
+}
+
+/* ---- sliders ------------------------------------------------------------ */
+/* How many cards are visible at once — mirrors the flex-basis breakpoints in CSS */
+const perView = () => window.innerWidth>=900 ? 3 : window.innerWidth>=640 ? 2 : 1;
+
+function initSlider(el){
+  const track=$("[data-track]",el), dots=$("[data-dots]",el);
+  const prev=$("[data-prev]",el), next=$("[data-next]",el);
+  const cards=[...track.children];
+  if(!cards.length) return;
+
+  const gap=()=>parseFloat(getComputedStyle(track).gap)||0;
+  const stepW=()=>cards[0].getBoundingClientRect().width+gap();
+
+  dots.innerHTML=cards.map((_,i)=>`<button aria-label="Go to item ${i+1}" data-i="${i}"></button>`).join("");
+  const dotBtns=[...dots.children];
+  dotBtns.forEach(b=>b.addEventListener("click",()=>track.scrollTo({left:stepW()*(+b.dataset.i)})));
+
+  const sync=()=>{
+    if(el.classList.contains("is-static")) return;
+    const i=Math.round(track.scrollLeft/stepW());
+    dotBtns.forEach((b,j)=>b.setAttribute("aria-current", j===i?"true":"false"));
+    prev.disabled = track.scrollLeft<8;
+    next.disabled = track.scrollLeft > track.scrollWidth-track.clientWidth-8;
+  };
+
+  /* A slider is only a slider when there is something to slide to.
+     Two team members on a desktop simply lay out as a grid. */
+  const evaluate=()=>{
+    const fits = cards.length <= perView();
+    el.classList.toggle("is-static", fits);
+    if(fits){ track.scrollLeft=0; } else { sync(); }
+  };
+
+  prev.onclick=()=>track.scrollBy({left:-stepW()});
+  next.onclick=()=>track.scrollBy({left:stepW()});
+  track.addEventListener("scroll",()=>{clearTimeout(track._t);track._t=setTimeout(sync,60)});
+  window.addEventListener("resize",()=>{clearTimeout(el._r);el._r=setTimeout(evaluate,120)});
+  evaluate();
+}
+
+function setVertical(v,btn){
+  render(v);
+  $$(".vbtn").forEach(b=>b.setAttribute("aria-pressed", b===btn?"true":"false"));
+  ["--brand","--accent","--ink","--surface","--surface-alt","--radius","--radius-sm"]
+    .forEach(t=>document.documentElement.style.removeProperty(t));
+}
+function setToken(n,v){document.documentElement.style.setProperty(n,v)}
+
+/* dropdowns */
+$$(".has-menu").forEach(btn=>{
+  const menu=$("#"+btn.getAttribute("aria-controls"));
+  btn.addEventListener("click",e=>{
+    e.stopPropagation();
+    const open=menu.dataset.open==="true";
+    $$(".menu").forEach(m=>m.dataset.open="false");
+    $$(".has-menu").forEach(b=>b.setAttribute("aria-expanded","false"));
+    menu.dataset.open=open?"false":"true";
+    btn.setAttribute("aria-expanded",open?"false":"true");
+  });
+});
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".menu")){
+    $$(".menu").forEach(m=>m.dataset.open="false");
+    $$(".has-menu").forEach(b=>b.setAttribute("aria-expanded","false"));
+  }
+});
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Escape")return;
+  $$(".menu").forEach(m=>m.dataset.open="false");
+  $$(".has-menu").forEach(b=>b.setAttribute("aria-expanded","false"));
+  $("#drawer").dataset.open="false"; closePopup();
+});
+
+/* drawer */
+const drawer=$("#drawer"), burger=$("#burger");
+burger.addEventListener("click",()=>{drawer.dataset.open="true";burger.setAttribute("aria-expanded","true")});
+$$("[data-close-drawer]").forEach(el=>el.addEventListener("click",()=>{
+  drawer.dataset.open="false"; burger.setAttribute("aria-expanded","false");
+}));
+document.addEventListener("click",e=>{ if(e.target.closest(".drawer-body a, .drawer-foot a")) drawer.dataset.open="false"; });
+
+/* popup */
+function closePopup(){$("#popup").dataset.open="false"}
+$$("[data-close-popup]").forEach(el=>el.addEventListener("click",closePopup));
+(function(){
+  if(sessionStorage.getItem("popupSeen"))return;
+  let fired=false;
+  const show=()=>{if(fired)return;fired=true;sessionStorage.setItem("popupSeen","1");$("#popup").dataset.open="true"};
+  setTimeout(show,30000);
+  document.addEventListener("mouseleave",e=>{if(e.clientY<=0)show()});
+})();
+
+render("clinic");
+</script>
+
+<script>
+const PAGES = {
+clinic:{
+  aboutH1:"About Meridian Skin",
+  aboutLede:"Four dermatology clinics across Delhi NCR, built on the idea that good skin care begins with an honest diagnosis rather than a treatment package.",
+  storyHeading:"How the clinic started",
+  story:["Meridian Skin opened in 2014 with a single consulting room in Greater Kailash. Dr Anita Rao had spent a decade in hospital dermatology and kept meeting the same problem: patients arriving having already been sold a course of treatment nobody had properly assessed them for.",
+    "The clinic was set up to work the other way round. Every patient is examined before anything is recommended, costs are written down before treatment begins, and we say plainly when a treatment is unlikely to help.",
+    "Eleven years on we run four clinics and a team of twelve, but the rule has not changed. It is the reason most of our new patients arrive on the recommendation of an existing one."],
+  quote:"We would rather lose a treatment booking than sell someone something they do not need.",
+  quoteBy:"Dr Anita Rao, Founder",
+  missionHeading:"To make good dermatological care something people can trust without having to be experts themselves.",
+  missionBody:"Every patient leaves understanding what is happening to their skin, what we are doing about it, and what it costs. No jargon and no pressure.",
+  visionHeading:"A skin clinic in every major Indian city that patients recommend because of how they were treated, not how they were marketed to.",
+  visionBody:"We want the phrase “go and see someone honest” to lead people to us.",
+  valuesHeading:"How we work",
+  valuesIntro:"Four commitments that shape every appointment.",
+  values:[
+    ["stethoscope","Assess before we advise","No treatment is recommended before a dermatologist has examined you and understood your history."],
+    ["receipt","Written costs, every time","You receive the full cost in writing before anything begins. No revisions partway through a course."],
+    ["handshake","Say no when no is right","If a treatment will not help, we will tell you, even when you have come in asking for it."],
+    ["repeat","Continuity of care","You see the same dermatologist through your treatment, because skin responds over months, not days."]
+  ],
+  milestonesHeading:"How we have grown",
+  milestones:[
+    ["2014","The first clinic opens","A single consulting room in Greater Kailash, run by Dr Anita Rao."],
+    ["2017","Laser service introduced","Dedicated laser suite added after eighteen months of protocol development."],
+    ["2019","Second and third clinics","Vasant Vihar and Gurugram open, with shared records across sites."],
+    ["2022","Skin cancer screening","Dermoscopy-led screening clinics introduced under Dr Arjun Menon."],
+    ["2025","Noida opens","Our fourth clinic, bringing the team to twelve clinicians and support staff."]
+  ],
+  credsHeading:"Credentials and accreditations",
+  credsIntro:"Everything a patient is entitled to check before booking.",
+  creds:[
+    ["shield","Medical registration","Every dermatologist holds current registration with the relevant State Medical Council. Registration numbers are on each doctor's profile."],
+    ["star","Professional memberships","Members of the Indian Association of Dermatologists, Venereologists and Leprologists."],
+    ["calendar","Equipment certification","All laser and energy devices are certified and serviced on a documented schedule."],
+    ["users","Indemnity cover","All practising clinicians carry current professional indemnity cover."]
+  ],
+  communityHeading:"Beyond the clinic",
+  communityBody:"Our clinicians run a free monthly skin screening camp in partnership with local community centres, and teach on the dermatology rotation at two Delhi teaching hospitals. We publish patient education material rather than promotional content, because informed patients make better decisions about their own care.",
+  aboutFaq:[
+    ["How long has the clinic been operating?","Since 2014. We now run four clinics across Delhi, Gurugram and Noida."],
+    ["Are all your doctors qualified dermatologists?","Yes. Every clinician holds a recognised postgraduate dermatology qualification and current medical registration."],
+    ["Can I ask to see a specific doctor?","Yes. You can select a preferred dermatologist when booking, subject to their availability at your chosen clinic."],
+    ["Do you share records between clinics?","Yes. Your records are available at whichever of our clinics you attend."]
+  ],
+  serviceCats:["Skin", "Skin", "Laser", "Skin", "Screening", "Aesthetic"],
+  svcH1:"Treatments",
+  svcLede:"Every treatment we offer, what it involves and who it suits. If you are not sure which applies to you, start with a consultation.",
+  detail:{"name": "Acne and acne scarring", "cat": "Skin", "lede": "Medical treatment for active acne, followed by resurfacing options once the skin has settled.", "answer": "Acne treatment at Meridian Skin means identifying what is actually driving your breakouts — hormonal, bacterial, or barrier-related — and treating that cause, rather than applying the same protocol to everyone. Scarring is treated separately, and only once active acne is under control.", "overview": ["Most people arrive having already tried several products. The first consultation is diagnostic: a dermatologist examines the skin, asks about your history, medication and routine, and identifies the pattern of acne you have.", "Treatment usually begins medically, with topical or oral therapy depending on severity. Once breakouts are controlled, we assess whether scarring needs treating and, if so, which resurfacing approach suits your skin type.", "Acne responds over months rather than weeks. We schedule reviews so the plan can be adjusted rather than left to run."], "facts": [["Consultation", "20–30 minutes"], ["Typical course", "3–6 months"], ["Downtime", "None for medical therapy"], ["From", "₹1,500"]], "suitable": ["Persistent breakouts that have not responded to over-the-counter products", "Hormonal acne along the jaw and chin", "Acne that has begun to leave marks or scarring", "Teenagers and adults, including acne starting after 25"], "caution": ["Active acne is treated before any resurfacing is considered", "Some oral therapies are not suitable during pregnancy and require monitoring", "Resurfacing may need to be deferred if your skin is currently inflamed"], "steps": [["Consultation and diagnosis", "A dermatologist examines your skin, reviews your history and identifies the type of acne you have."], ["Medical treatment plan", "You receive a written plan with costs, covering topical or oral therapy and how long before you should expect change."], ["Review at six to eight weeks", "We assess response and adjust. Most plans need at least one adjustment."], ["Scarring assessment", "Once breakouts are controlled, we discuss whether resurfacing is worthwhile and what it can realistically achieve."]], "aftercare": ["A simple routine you can actually keep to, usually three or four products", "Sun protection is not optional during and after treatment", "Report side effects early rather than stopping treatment on your own", "Come back for scheduled reviews even when things are improving"], "pricing": [["Initial consultation", "Examination, diagnosis and written plan", "₹1,500"], ["Follow-up review", "Progress check and plan adjustment", "₹900"], ["Chemical peel", "Per session, course usually 4–6", "₹3,500"], ["Microneedling for scarring", "Per session, course usually 3–4", "₹6,000"]], "priceNote": "Consultation fees are confirmed when you book. Treatment costs are given in writing after assessment and do not change midway through a course.", "faq": [["How long before I see a difference?", "Most people see meaningful change between six and twelve weeks. Anyone promising faster is overselling."], ["Will you put me on medication straight away?", "Only if the assessment supports it. Many cases are managed topically."], ["Can you remove acne scars completely?", "No. Scarring can be significantly improved, but complete removal is not a realistic outcome and we will not claim it."], ["Do I need to stop my current products?", "Usually we simplify rather than stop everything. Bring what you are using to the consultation."]], "related": [1, 4, 5]},
+  dWhatWorks:["Diagnosis first — we identify what is driving the acne before prescribing", "Medical therapy matched to the type and severity you actually have", "Scarring assessed separately, only once breakouts have settled", "Reviews scheduled at six to eight weeks so the plan is adjusted, not left to run"],
+  dConcerns:["Hormonal acne", "Persistent breakouts", "Acne marks", "Early scarring", "Adult-onset acne"],
+  dReasons:[["stethoscope", "Dermatologist-led", "Every consultation is with a qualified dermatologist, never delegated to a therapist."], ["target", "Treated at the cause", "We identify the driver — hormonal, bacterial or barrier — rather than treating what is visible."], ["receipt", "Costs in writing", "The full cost of your plan is confirmed in writing before anything begins."], ["repeat", "Reviewed and adjusted", "Progress is checked at six to eight weeks and the plan changed if it is not working."], ["sparkle", "Scarring handled separately", "Resurfacing is considered only once active acne is properly controlled."], ["handshake", "Realistic about outcomes", "We tell you plainly what treatment can and cannot achieve for your skin."]],
+  teamLine:"Treated by dermatologists. Always.",
+  teamLineSub:"Every consultation and procedure is carried out personally by a qualified dermatologist, never delegated to a therapist.",
+  specLink:"Speak to a dermatologist",
+  contactH1:"Contact Meridian Skin",
+  contactLede:"Call, message or send an enquiry. Reception answers during opening hours and we reply to every message within one working day.",
+  methodsHeading:"How to reach us",
+  emailAddr:"hello@meridianskin.in",
+  responseNote:"We reply to every enquiry within one working day.",
+  formHeading2:"Send us an enquiry",
+  formSub2:"Tell us what you need and reception will come back to you. Please do not include medical details in this form.",
+  nextSteps:["We acknowledge your enquiry straight away by message.","Reception calls to confirm the clinic, doctor and time that suits you.","You receive a confirmation with directions, and a reminder the day before."],
+  noticeTitle:"If this is a medical emergency",
+  noticeBody:"Do not use this form. Contact your nearest emergency department or call your local emergency number.",
+  contactFaq:[
+    ["What is the fastest way to book?","Use the booking form or call reception directly. Both are usually confirmed the same day."],
+    ["Can I message on WhatsApp?","Yes. WhatsApp is the quickest route for reception queries and rescheduling."],
+    ["Do you offer teleconsultations?","Yes, for follow-ups and initial advice. New assessments usually need an in-person examination."],
+    ["How do I reschedule?","Use the link in your confirmation message, or call the clinic. Free up to 24 hours before."]
+  ]
+},
+
+carwash:{
+  aboutH1:"About RinseBox",
+  aboutLede:"Four detailing sites across the city, built around booked slots so nobody queues on a Sunday morning and nobody rushes a job.",
+  storyHeading:"How we started",
+  story:["RinseBox began in 2017 with one bay in Andheri. Imran Qureshi had spent a decade detailing show cars and was tired of watching high street washes destroy paint with dirty mitts and spinning brushes.",
+    "The idea was simple: run a car wash like a workshop. Booked slots instead of queues, trained staff instead of casual labour, and a wash process that will not put swirl marks into a dark-coloured car.",
+    "Nine years later we run four sites and clean around eighteen thousand cars a year. The process has not changed, and neither has the free rewash if we miss something."],
+  quote:"If a wash puts scratches into your paint, it was not a wash. It was damage with a receipt.",
+  quoteBy:"Imran Qureshi, Founder",
+  missionHeading:"To make a properly cleaned car something you book in a minute rather than queue for on a Sunday.",
+  missionBody:"Every car leaves cleaner than it arrived and with its paint in better condition, cleaned by a trained person on a slot that was reserved for it.",
+  visionHeading:"To make hand washing done properly the normal choice, not the premium one.",
+  visionBody:"A city where nobody accepts swirl marks as the price of a clean car.",
+  valuesHeading:"How we work",
+  valuesIntro:"Four commitments that apply at every site.",
+  values:[
+    ["calendar","Booked slots, not queues","Your bay is reserved. You are not waiting behind six cars on a Sunday."],
+    ["sparkle","Paint-safe process","Two-bucket method, fresh mitts per car, no spinning brushes. Ever."],
+    ["repeat","Free rewash within 48 hours","If we miss something, bring it back. No argument and no charge."],
+    ["receipt","Pay on collection","Nothing is taken online. You inspect the car first, then you pay."]
+  ],
+  milestonesHeading:"How we have grown",
+  milestones:[
+    ["2017","One bay in Andheri","Imran opens the first site with two staff and a booking sheet."],
+    ["2019","Second site and training programme","Lower Parel opens; the paint-safe wash process is formalised and taught."],
+    ["2021","Ceramic coating service","A dedicated enclosed bay added for paint correction and coating work."],
+    ["2023","Fleet contracts","Commercial fleet servicing begins, now covering several hundred vehicles."],
+    ["2025","Fourth site opens","Navi Mumbai brings the team to twenty-six across four sites."]
+  ],
+  credsHeading:"Training and standards",
+  credsIntro:"What sits behind the work.",
+  creds:[
+    ["shield","Trained detailers","Every detailer completes our internal paint-safety programme before touching a customer car."],
+    ["star","Industry accreditation","Senior staff hold recognised detailing accreditations and coating certifications."],
+    ["calendar","Approved products only","We use manufacturer-approved chemicals and log every coating application."],
+    ["users","Insured on site","Full public liability and customer vehicle cover at every location."]
+  ],
+  communityHeading:"Beyond the bays",
+  communityBody:"We recycle and filter the majority of our wash water on site, and we run a free monsoon-season underbody rinse for local delivery riders every year. Our team also trains apprentices from two local vocational programmes.",
+  aboutFaq:[
+    ["How long have you been operating?","Since 2017. We now run four sites across the city."],
+    ["Do you use automatic brush machines?","No. Every car is washed by hand using a two-bucket, paint-safe process."],
+    ["Are my keys and car insured while with you?","Yes. Every site carries full public liability and customer vehicle cover."],
+    ["Can I use my plan at any site?","Yes. Monthly plans work at all four locations."]
+  ],
+  serviceCats:["Exterior", "Interior", "Paint", "Paint", "Exterior", "Plans"],
+  svcH1:"Our services",
+  svcLede:"Everything we offer, what is included and how long it takes. Every service runs on a booked slot.",
+  detail:{"name": "Express exterior wash", "cat": "Exterior", "lede": "Hand wash, wheels, windows and a spray sealant. In and out in under an hour, on a slot reserved for you.", "answer": "The express wash is a full hand wash using a two-bucket method with a fresh mitt for every car. It covers paintwork, wheels, arches, glass and door shuts, finished with a spray sealant. It takes about 45 minutes and is booked, so there is no queue.", "overview": ["This is the service most customers use fortnightly. It is designed to keep paint clean and protected without the swirl marks that automatic brush machines cause.", "Every car gets a pre-rinse and snow foam to lift grit before anything touches the paint. That step is what prevents scratching, and it is the step cheap washes skip.", "We finish with a spray sealant that adds a few weeks of protection and makes the next wash easier."], "facts": [["Duration", "About 45 minutes"], ["Booking", "Slot reserved"], ["Payment", "On collection"], ["From", "₹499"]], "suitable": ["Regular upkeep between deeper details", "Dark-coloured cars that show swirl marks easily", "Cars with existing wax or ceramic protection", "Lease and company vehicles needing regular presentation"], "caution": ["Heavy tar, sap or industrial fallout needs a decontamination wash instead", "Existing scratches are not removed by washing — that is paint correction", "Very heavily soiled vehicles may need a longer slot, which we will tell you when you book"], "steps": [["Arrive at your slot", "Drop the keys at reception. Wait in the lounge or leave the car with us."], ["Pre-rinse and snow foam", "Grit is lifted off the paint before any contact, which is what prevents scratching."], ["Contact wash and wheels", "Two-bucket hand wash with a fresh mitt, wheels and arches cleaned separately."], ["Dry, seal and inspect", "Dried with clean towels, sealant applied, then we walk around the car with you before you pay."]], "aftercare": ["Avoid automatic brush washes between visits — they undo the work", "Remove bird lime and sap quickly rather than letting it etch", "A fortnightly wash keeps sealant performing properly", "Tell us about any new marks so we can advise honestly"], "pricing": [["Hatchback and sedan", "Standard express wash", "₹499"], ["SUV and MPV", "Larger surface area and wheels", "₹699"], ["Add interior vacuum", "Cabin vacuum and glass", "₹249"], ["Monthly plan", "Unlimited express washes, any site", "₹1,499/mo"]], "priceNote": "Prices are confirmed when you book. Nothing is charged online — you inspect the car and pay on collection.", "faq": [["How long does it take?", "About 45 minutes for most cars. We tell you exactly when you book."], ["Do you use brushes?", "Never. Every car is washed by hand with a fresh mitt."], ["What if I am not happy?", "Bring the car back within 48 hours and we redo it at no charge."], ["Can I wait?", "Yes, every site has a waiting lounge with free wifi."]], "related": [1, 4, 5]},
+  dWhatWorks:["Pre-rinse and snow foam lift grit before anything touches the paint", "Two-bucket method with a fresh wash mitt for every car", "Wheels and arches cleaned with separate, dedicated tools", "Spray sealant applied to add weeks of protection"],
+  dConcerns:["Weekly upkeep", "Dark paintwork", "Lease vehicles", "Sealant top-up", "Pre-sale tidy"],
+  dReasons:[["calendar", "Your slot is reserved", "Book a time and the bay is yours. No queueing on the forecourt."], ["sparkle", "No brushes, ever", "Hand washed with fresh mitts, so no swirl marks are added to your paint."], ["repeat", "Free rewash in 48 hours", "If we miss something, bring it back and we redo it at no charge."], ["receipt", "Pay on collection", "Nothing is taken online. You inspect the car with us before paying."], ["users", "Trained detailers", "Every member of the team completes our paint-safety programme."], ["pin", "Use any of our sites", "Plans and bookings work across all four locations."]],
+  teamLine:"Cleaned by trained detailers. Always.",
+  teamLineSub:"Every car is handled by a detailer who has completed our paint-safety programme, never by casual staff.",
+  specLink:"Ask about your car",
+  contactH1:"Contact RinseBox",
+  contactLede:"Call, message or send an enquiry. The bookings line is open every day and we reply to messages within the hour during opening times.",
+  methodsHeading:"How to reach us",
+  emailAddr:"hello@rinsebox.in",
+  responseNote:"We reply to messages within the hour during opening times.",
+  formHeading2:"Send us an enquiry",
+  formSub2:"Tell us what your car needs and we will come back with a time and a price.",
+  nextSteps:["We acknowledge your enquiry straight away by SMS.","We confirm the bay, site and time that suits you.","You get a reminder the day before, and a walk-around before you pay."],
+  noticeTitle:"Dropping off outside opening hours",
+  noticeBody:"Key drop is available at Andheri and Powai by prior arrangement. Call ahead to organise it.",
+  contactFaq:[
+    ["What is the fastest way to book?","Use the booking form or call. Both are usually confirmed within the hour."],
+    ["Can I turn up without booking?","Yes, whenever we have space, but a booked slot guarantees a bay."],
+    ["Do you collect and deliver?","Yes, within a limited radius of each site. Ask when you book."],
+    ["How do I change my slot?","Call the site or reply to your confirmation message. Free any time before the day."]
+  ]
+},
+
+legal:{
+  aboutH1:"About Harlow & West",
+  aboutLede:"A boutique firm advising individuals and owner-managed businesses since 2002, built to stay small enough that clients deal directly with their solicitor.",
+  storyHeading:"How the firm began",
+  story:["Harlow & West was founded in 2002 by Rebecca Harlow and Daniel West, both of whom had left larger firms for the same reason: clients were being passed down a chain and billed by the hour for the privilege.",
+    "The firm was built on two decisions that have not changed. We agree fees in writing before work starts, and the solicitor you meet is the solicitor who does the work.",
+    "Twenty-four years later we operate from four offices. Most of our instructions come from clients we have acted for before, or from people they have sent to us."],
+  quote:"Clients rarely object to paying for good advice. They object to not knowing what it will cost.",
+  quoteBy:"Rebecca Harlow, Founding Partner",
+  missionHeading:"To give people clear legal advice at a price agreed before the work starts.",
+  missionBody:"Every client knows the scope, the cost and the likely outcome before instructing us, and deals directly with the solicitor doing the work.",
+  visionHeading:"A firm people return to across their working life and recommend without hesitation.",
+  visionBody:"We would rather be the firm clients call first than the largest firm in the region.",
+  valuesHeading:"How we work",
+  valuesIntro:"Four commitments that apply to every matter we take on.",
+  values:[
+    ["receipt","Fees agreed in writing","Scope and cost are confirmed before work begins. We do not default to open-ended hourly billing."],
+    ["handshake","Your solicitor does your work","No case handlers. The person at your first meeting is the person on your file."],
+    ["clock","A response within one working day","Every enquiry is answered by a solicitor, not an automated acknowledgement."],
+    ["compass","We tell you when not to proceed","If litigation will cost more than it recovers, we say so at the first meeting."]
+  ],
+  milestonesHeading:"How the firm has grown",
+  milestones:[
+    ["2002","The firm is founded","Rebecca Harlow and Daniel West open a two-solicitor practice in the City."],
+    ["2008","Commercial team established","Daniel builds the commercial practice advising owner-managed businesses."],
+    ["2014","Employment practice added","Priya Anand joins to act for both employers and employees."],
+    ["2019","Fixed-fee model extended","Fixed pricing rolled out across conveyancing, wills and probate."],
+    ["2024","Fourth office opens","Westbrook opens, bringing the firm to sixteen solicitors and support staff."]
+  ],
+  credsHeading:"Regulation and standards",
+  credsIntro:"Everything a client is entitled to check before instructing us.",
+  creds:[
+    ["shield","Regulated practice","The firm and every solicitor are regulated by the relevant professional body, with current practising certificates."],
+    ["star","Professional memberships","Members of recognised specialist panels in private client and employment law."],
+    ["calendar","Client account protection","Client money is held in a separate client account under regulated conditions."],
+    ["users","Professional indemnity","The firm carries professional indemnity insurance above the required minimum."]
+  ],
+  communityHeading:"Beyond the practice",
+  communityBody:"The firm runs a monthly free legal advice clinic at two community centres, and our solicitors supervise students on a university law clinic programme. We publish plain-English guidance because most legal problems are cheaper to prevent than to fix.",
+  aboutFaq:[
+    ["How long has the firm been established?","Since 2002. We now operate from four offices across the region."],
+    ["Will I deal with a qualified solicitor?","Yes. We do not use case handlers. Your matter is handled by the solicitor you meet."],
+    ["Are you regulated?","Yes. The firm and every solicitor hold current regulation and practising certificates."],
+    ["Do you act for both individuals and businesses?","Yes. Roughly half our work is private client and half is for owner-managed businesses."]
+  ],
+  serviceCats:["Private client", "Property", "Employment", "Family", "Commercial", "Disputes"],
+  svcH1:"Practice areas",
+  svcLede:"How we can help, who we act for, and exactly how fees work in each area.",
+  detail:{"name": "Wills and probate", "cat": "Private client", "lede": "Drafting wills and powers of attorney, and administering estates, on fixed fees agreed before we start.", "answer": "We draft wills and lasting powers of attorney, and we administer estates after a death. Both are handled on fixed fees confirmed in writing before any work begins, and you deal directly with the solicitor doing the work rather than a case handler.", "overview": ["A will is usually straightforward to draft and expensive to have got wrong. Most of our work here is making sure the document does what the client actually intends, particularly where there are second marriages, businesses or property abroad.", "Probate work begins after a death, often at short notice. We handle the estate administration and keep the process visible, so executors know what stage things are at.", "We will tell you when a simpler option is adequate rather than selling a more complex structure."], "facts": [["First meeting", "45–60 minutes"], ["Fee basis", "Fixed, agreed in writing"], ["Turnaround", "Draft within 10 working days"], ["From", "Fixed fee"]], "suitable": ["Anyone without a valid will, particularly with children or property", "Second marriages and blended families", "Business owners needing succession considered", "Executors who have been asked to administer an estate"], "caution": ["Assets held abroad may need advice in that jurisdiction as well", "Disputed estates are handled by our disputes team, not this one", "We cannot advise both sides where interests conflict"], "steps": [["Initial meeting", "We establish what you own, who you want to benefit and any complications, then confirm a fixed fee."], ["Draft prepared", "You receive a draft within ten working days, with plain-English notes explaining each clause."], ["Review and amend", "We go through the draft together and adjust it. Amendments within scope are included."], ["Signing and storage", "We supervise execution so the will is valid, and store the original free of charge."]], "aftercare": ["Review your will after marriage, divorce, a birth or a house purchase", "Tell your executors where the original is held", "A power of attorney is only useful if made before it is needed", "We write to remind clients every five years"], "pricing": [["Single will", "Straightforward estate, one person", "Fixed fee"], ["Mirror wills", "Couples with matching terms", "Fixed fee"], ["Lasting power of attorney", "Per document, per person", "Fixed fee"], ["Estate administration", "Quoted after review of the estate", "On enquiry"]], "priceNote": "Fixed fees are confirmed in writing before work begins and do not change unless you change the instructions.", "faq": [["How much does a will cost?", "We quote a fixed fee at the first meeting, before any work starts. There are no hourly extras."], ["How long does probate take?", "Most straightforward estates take six to nine months. We will give a realistic estimate once we have seen the estate."], ["Do I need a solicitor for a will?", "Not legally. But home-made wills are the most common cause of the disputes we later have to resolve."], ["Where is the original kept?", "We store it in our strongroom at no charge and give you a copy."]], "related": [1, 3, 5]},
+  dWhatWorks:["A fixed fee agreed in writing before drafting begins", "Plain-English notes explaining what every clause actually does", "Execution supervised in our office so the will is valid", "The original stored in our strongroom at no charge"],
+  dConcerns:["No will in place", "Second marriage", "Business succession", "Named as executor", "Power of attorney"],
+  dReasons:[["receipt", "Fixed fees, agreed first", "You know the cost before work starts. No hourly billing by default."], ["users", "Your solicitor does the work", "No case handlers. The person you meet is the person on your file."], ["clock", "Draft within ten days", "You receive a first draft within ten working days of the meeting."], ["shield", "Free secure storage", "We hold the original in our strongroom and give you a copy."], ["repeat", "Five-year reminders", "We write to prompt a review, because circumstances change."], ["handshake", "Written in plain English", "Documents you can actually read, not pages of unexplained clauses."]],
+  teamLine:"Handled by your solicitor. Always.",
+  teamLineSub:"Your matter is handled personally by a qualified solicitor, never passed down to a case handler.",
+  specLink:"Speak to a solicitor",
+  contactH1:"Contact Harlow & West",
+  contactLede:"Call, email or send an enquiry. Every enquiry is answered by a solicitor within one working day.",
+  methodsHeading:"How to reach us",
+  emailAddr:"enquiries@harlowwest.co.uk",
+  responseNote:"Every enquiry is answered by a solicitor within one working day.",
+  formHeading2:"Send us an enquiry",
+  formSub2:"Tell us briefly what you need. Please do not send confidential or sensitive documents through this form.",
+  nextSteps:["We acknowledge your enquiry and confirm we can help.","A solicitor calls to discuss scope and confirm the fixed fee.","We confirm everything in writing before any work begins."],
+  noticeTitle:"Please do not send confidential documents",
+  noticeBody:"This form is not a secure channel. Once we have opened a file we will provide a secure method for sharing documents.",
+  contactFaq:[
+    ["How quickly will someone respond?","Within one working day, and the response comes from a solicitor."],
+    ["Can I get an idea of cost before meeting?","Yes. Tell us what you need and we will indicate the fixed fee or estimate before you commit."],
+    ["Do you offer video meetings?","Yes, at every office, including outside normal hours by arrangement."],
+    ["Is the first conversation confidential?","Yes. Anything you tell us is treated confidentially whether or not you instruct us."]
+  ]
+},
+
+garden:{
+  aboutH1:"About Greenvale",
+  aboutLede:"Garden design, planting and maintenance across the region since 2009, built around planting that still looks right in year five.",
+  storyHeading:"How we started",
+  story:["Greenvale started in 2009 when Meera Joshi left a landscape practice to work directly with homeowners. Too many gardens were being designed to photograph well on handover and left to struggle from the second season onward.",
+    "We build the other way round. Plants are chosen for the soil, light and water they will actually get, and we say so when a client asks for something that will not survive where they want it.",
+    "Sixteen years later we run four depots and maintain more than three hundred gardens. The plants we put in during our first year are still there."],
+  quote:"Anyone can make a garden look good on handover day. The test is what it looks like in year five.",
+  quoteBy:"Meera Joshi, Founder",
+  missionHeading:"To build gardens that are still worth looking at in year five.",
+  missionBody:"Every planting decision is made for the conditions the garden actually has, and every quote we give is one we hold to.",
+  visionHeading:"To be the team that families hand on to the next owners of their house.",
+  visionBody:"Gardens are long projects. We plan for the decade, not the handover photograph.",
+  valuesHeading:"How we work",
+  valuesIntro:"Four commitments that shape every project.",
+  values:[
+    ["leaf","Right plant, right place","We plant for the conditions your garden actually has, not the ones a catalogue assumes."],
+    ["receipt","Fixed quotes, held for 90 days","The price does not move unless you change the brief, even when the ground surprises us."],
+    ["repeat","The same crew on your garden","Continuity means they know your soil, your planting and how you like it kept."],
+    ["sparkle","Replaced free in season one","Anything we plant that fails in the first season is replaced at no charge."]
+  ],
+  milestonesHeading:"How we have grown",
+  milestones:[
+    ["2009","Greenvale is founded","Meera Joshi begins working directly with homeowners on planting design."],
+    ["2013","Maintenance division added","Regular maintenance rounds introduced after clients asked us to keep what we built."],
+    ["2016","Hard landscaping in house","Paths, patios and walls brought in house rather than subcontracted."],
+    ["2021","Tree surgery team","Certified arborists join, allowing us to handle pruning and removals safely."],
+    ["2024","Fourth depot opens","Rajajinagar opens, bringing coverage across the whole region."]
+  ],
+  credsHeading:"Qualifications and standards",
+  credsIntro:"What sits behind the work in your garden.",
+  creds:[
+    ["shield","Qualified horticulturists","Design and planting leads hold recognised horticultural qualifications."],
+    ["star","Certified arborists","All tree work is carried out by certified arborists to recognised standards."],
+    ["calendar","Documented soil testing","Every design project begins with soil assessment, recorded and shared with you."],
+    ["users","Fully insured","Public liability and employer cover across all crews and depots."]
+  ],
+  communityHeading:"Beyond the garden",
+  communityBody:"We propagate and donate several thousand plants a year to school and community garden projects, and we compost all green waste at our depots rather than sending it away. Two apprentices join us each year through a regional horticulture scheme.",
+  aboutFaq:[
+    ["How long have you been operating?","Since 2009. We now work from four depots across the region."],
+    ["Do you do both design and maintenance?","Yes. Many clients start with a design project and move onto a maintenance plan afterwards."],
+    ["Are your crews insured?","Yes. Full public liability and employer cover across every crew."],
+    ["Do you guarantee your planting?","Anything we plant that fails in the first season is replaced at no charge."]
+  ],
+  serviceCats:["Design", "Planting", "Lawns", "Hard landscaping", "Trees", "Maintenance"],
+  svcH1:"Our services",
+  svcLede:"What we do, how each project runs and how we price it. The first site visit is always free.",
+  detail:{"name": "Garden design", "cat": "Design", "lede": "A full plan with planting schedule, materials and a phased budget, based on the conditions your garden actually has.", "answer": "A Greenvale design starts with a free site visit and soil assessment, and results in a scaled plan, a planting schedule and a phased budget. We design for the light, soil and water your garden actually gets, which is why the planting is still working in year five.", "overview": ["We begin by walking the garden with you and talking about how you actually use it, not how a magazine says you should. Soil is tested and light is mapped through the day.", "You then receive a scaled plan with a planting schedule and a budget broken into phases, so the work can be spread across seasons if that suits you better.", "We are happy to hand the plan over for someone else to build. Most clients ask us to do it, but the design is yours either way."], "facts": [["Site visit", "Free, about an hour"], ["Plan delivered", "3–4 weeks"], ["Quote validity", "Held for 90 days"], ["From", "₹25,000"]], "suitable": ["New builds with a blank plot", "Established gardens that no longer work for the family", "Difficult sites with shade, slope or poor drainage", "Anyone planning work in phases across several seasons"], "caution": ["Planting is timed to the season, so the build may not start immediately", "Structural work near boundaries or trees may need consent", "We will advise against planting that will struggle, even if you have asked for it"], "steps": [["Free site visit", "We walk the garden, test the soil, map the light and talk about how you want to use the space."], ["Concept and layout", "An initial layout showing zones, circulation and structure, for you to react to."], ["Full plan and schedule", "A scaled plan with the planting schedule, materials and a phased budget."], ["Build or hand over", "We build it with our own crews, or hand the plan to whoever you prefer."]], "aftercare": ["New planting needs watering through its first two dry seasons", "Do not feed heavily in year one — let roots establish", "Most designs need light editing in year three", "A maintenance plan protects the investment, but is not compulsory"], "pricing": [["Small garden design", "Up to 100 sqm, plan and schedule", "₹25,000"], ["Family garden design", "100–400 sqm, phased budget included", "₹45,000"], ["Large or complex site", "Slopes, drainage or multiple zones", "On enquiry"], ["Planting plan only", "For clients who have a layout already", "₹15,000"]], "priceNote": "Design fees are confirmed after the free site visit. Build costs are quoted separately and held for 90 days.", "faq": [["Is the site visit really free?", "Yes. The visit and the written quote cost nothing and carry no obligation."], ["Do I have to use you to build it?", "No. The plan is yours and many clients build in phases with their own contractor."], ["How long until the garden looks finished?", "Structure looks right immediately. Planting takes two to three seasons to read as intended."], ["Can you work with what is already there?", "Usually, yes. Keeping established trees and shrubs is normally the better decision."]], "related": [1, 2, 3]},
+  dWhatWorks:["Soil tested and light mapped across the day before anything is drawn", "Planting chosen for the conditions your garden actually has", "A budget phased across seasons so work can be spread", "The plan is yours — build it with us or with anyone else"],
+  dConcerns:["New build plot", "Shaded garden", "Sloping site", "Poor drainage", "Phased project"],
+  dReasons:[["leaf", "Soil-led planting", "We plant for the light, soil and water your garden gets, not for a catalogue."], ["receipt", "Fixed quote, 90 days", "The price holds unless you change the brief, even when the ground surprises us."], ["calendar", "Free first site visit", "The visit and the written quote cost nothing and carry no obligation."], ["users", "The same crew", "Continuity means they learn your soil and your planting over the years."], ["repeat", "Replaced free in year one", "Anything we plant that fails in the first season is replaced at no cost."], ["compass", "Phased budgets", "Work can be spread across seasons without losing the overall design."]],
+  teamLine:"Planted by qualified horticulturists.",
+  teamLineSub:"Every design and planting decision is made by a qualified horticulturist, and the same crew returns to your garden.",
+  specLink:"Talk to a designer",
+  contactH1:"Contact Greenvale",
+  contactLede:"Call, message or send an enquiry. The office is open six days a week and we confirm every site visit within one working day.",
+  methodsHeading:"How to reach us",
+  emailAddr:"hello@greenvale.in",
+  responseNote:"We confirm every enquiry within one working day.",
+  formHeading2:"Request a site visit",
+  formSub2:"Tell us a little about your garden and we will arrange a free visit at a time that suits you.",
+  nextSteps:["We acknowledge your enquiry and check we cover your area.","We arrange a free site visit at a time that suits you.","You receive a written fixed quote, held for 90 days."],
+  noticeTitle:"Storm or fallen tree",
+  noticeBody:"For urgent tree work after a storm, call the office directly rather than using this form. We hold emergency slots.",
+  contactFaq:[
+    ["Is the first visit really free?","Yes. The site visit and the written quote cost nothing and carry no obligation."],
+    ["Do you cover my area?","We cover a 25km radius from each of our four depots. Tell us your postcode and we will confirm."],
+    ["How far ahead should I get in touch?","Design work books around six weeks ahead. Maintenance can usually start within a fortnight."],
+    ["Can you work with my existing plan?","Yes. We are happy to plant and maintain to a design somebody else has drawn."]
+  ]
+}
+};
+
+/* ---------------------------------------------------------------------------
+   GHL FORM SLOT
+   Two supported modes, per the Scope of Work integration seam (§9):
+     mode="native" — form posts to /api/lead on your own server, which then
+                     calls GoHighLevel. Content stays crawlable, no iframe,
+                     no layout shift. This is the recommended default.
+     mode="ghl"    — GoHighLevel embedded form. Paste the form ID below.
+   NOTE ON ATTRIBUTION: a GHL iframe cannot see the parent page's URL, so UTM
+   parameters are lost unless they are forwarded into the iframe src. The
+   helper below does that automatically. Create matching custom fields
+   (utm_source, utm_medium, utm_campaign, utm_term, utm_content) in the
+   sub-account first, with query keys named exactly that.
+--------------------------------------------------------------------------- */
+const GHL_FORM_ID = "";            // <-- paste the GoHighLevel form ID here
+const GHL_FORM_HEIGHT = 640;
+
+function ghlFormSrc(formId){
+  const url = new URL("https://api.leadconnectorhq.com/widget/form/" + formId);
+  const here = new URLSearchParams(location.search);
+  ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","fbclid"]
+    .forEach(k => { if(here.get(k)) url.searchParams.set(k, here.get(k)); });
+  url.searchParams.set("page_url", location.href.split("?")[0]);
+  return url.toString();
+}
+
+function renderFormSlot(el){
+  const useGhl = document.body.classList.contains("ghl-mode");
+  if(useGhl && GHL_FORM_ID){
+    el.innerHTML = '<iframe src="'+ghlFormSrc(GHL_FORM_ID)+'" id="inline-'+GHL_FORM_ID+'" '+
+      'style="width:100%;border:none;border-radius:4px;min-height:'+GHL_FORM_HEIGHT+'px" '+
+      'scrolling="no" title="Enquiry form"></iframe>';
+    if(!document.getElementById("ghl-embed-js")){
+      const s=document.createElement("script");
+      s.id="ghl-embed-js"; s.src="https://link.msgsndr.com/js/form_embed.js";
+      document.body.appendChild(s);
+    }
+    return;
+  }
+  if(useGhl){
+    el.innerHTML =
+      '<div class="ghl-embed">'+
+      '<h4>GoHighLevel form slot</h4>'+
+      '<p>Set <strong>GHL_FORM_ID</strong> in this page\'s script and the embed renders here. UTM parameters are forwarded into the iframe automatically so attribution is preserved.</p>'+
+      '<code>&lt;iframe\n  src="https://api.leadconnectorhq.com/widget/form/YOUR_FORM_ID"\n  style="width:100%;border:none;border-radius:4px"\n  id="inline-YOUR_FORM_ID"&gt;\n&lt;/iframe&gt;\n&lt;script src="https://link.msgsndr.com/js/form_embed.js"&gt;&lt;/script&gt;</code>'+
+      '</div>';
+    return;
+  }
+  el.innerHTML = nativeFormHTML();
+}
+
+function nativeFormHTML(){
+  const c = CONTENT[document.documentElement.dataset.vertical];
+  return `
+  <form class="formgrid" onsubmit="event.preventDefault();alert('Demo only — posts to /api/lead in production.')">
+    <div class="formgrid-2">
+      <div class="field"><label for="f-name">Full name</label><input id="f-name" required placeholder="Your name"></div>
+      <div class="field"><label for="f-phone">Phone number</label><input id="f-phone" type="tel" required placeholder="Mobile number"></div>
+    </div>
+    <div class="field"><label for="f-email">Email address</label><input id="f-email" type="email" placeholder="you@example.com"></div>
+    <div class="formgrid-2">
+      <div class="field"><label for="f-svc">${c.bookFieldService}</label><select id="f-svc">${c.services.map(s=>'<option>'+s[0]+'</option>').join("")}</select></div>
+      <div class="field"><label for="f-loc">Location</label><select id="f-loc">${c.locations.map(l=>'<option>'+l[0]+'</option>').join("")}</select></div>
+    </div>
+    <div class="formgrid-2">
+      <div class="field"><label for="f-date">Preferred date</label><input id="f-date" type="date"></div>
+      <div class="field"><label for="f-time">Preferred time</label>
+        <select id="f-time"><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div>
+    </div>
+    <div class="field"><label for="f-msg">${c.messageLabel}</label><textarea id="f-msg" rows="4"></textarea></div>
+    <label class="consent"><input type="checkbox" required><span>${c.consentText}</span></label>
+    <button class="btn btn-primary btn-lg btn-block" type="submit">${c.submitLabel}</button>
+    <p class="form-note">${c.formNote}</p>
+  </form>`;
+}
+</script>
+
+<script>
+Object.assign(ICONS,{
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5L12 13l8.5-6.5"/>',
+  chat:'<path d="M21 11.5a8.4 8.4 0 01-9 8.4 8.5 8.5 0 01-3.9-.9L3 20.5l1.5-4.9A8.4 8.4 0 0112 3.1a8.4 8.4 0 019 8.4z"/>',
+  route:'<circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>',
+  compass:'<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/>',
+  stethoscope:'<path d="M5 3v5a4.5 4.5 0 009 0V3"/><path d="M9.5 12.4V15a5 5 0 0010 0v-1.6"/><circle cx="19.5" cy="11.4" r="2"/>',
+  receipt:'<path d="M5 3h14v18l-2.3-1.6-2.4 1.6-2.3-1.6L9.7 21l-2.4-1.6L5 21z"/><path d="M8.6 8h6.8M8.6 12h6.8"/>',
+  handshake:'<path d="M7.5 11l3-3 3 2.5 3-2.5 4 4-5.5 5.5-1.6-1.6"/><path d="M3.5 11.5l4-4"/><path d="M9.4 16.4l2 2"/>',
+  repeat:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>',
+  sparkle:'<path d="M12 3l1.9 5.2L19 10l-5.1 1.8L12 17l-1.9-5.2L5 10l5.1-1.8z"/><path d="M18.5 16.5l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"/>',
+  leaf:'<path d="M4 20c0-8 5-13 16-13 0 9-5 13-11 13H4z"/><path d="M4 20c3.5-4.5 7-7 11-8.6"/>'
+});
+</script>
+
+<script>
+/* Schema types follow Scope of Work §6.4. Only properties that are visibly
+   rendered on the page are emitted — marking up invisible content is a policy
+   violation and can cause the markup to be ignored. */
+const SCHEMA_ORG_TYPE = { clinic:"MedicalClinic", carwash:"AutoWash", legal:"LegalService", garden:"HomeAndConstructionBusiness" };
+
+function writeSchema(v, page){
+  const c = CONTENT[v], a = PAGES[v];
+  const orgType = SCHEMA_ORG_TYPE[v] || "LocalBusiness";
+  const org = {
+    "@type": orgType,
+    "@id": location.origin + "/#organization",
+    name: c.brandName,
+    description: a.aboutLede,
+    telephone: c.mainPhone,
+    email: a.emailAddr,
+    url: location.origin,
+    address: c.locations.map(l => ({ "@type":"PostalAddress", streetAddress:l[2] })),
+    openingHours: c.locations[0][3]
+  };
+  if(v === "clinic") org.medicalSpecialty = "Dermatology";
+
+  const PAGE_TYPE = { about:"AboutPage", contact:"ContactPage", services:"CollectionPage", service:"WebPage" };
+  const PAGE_NAME = { about:a.aboutH1, contact:a.contactH1, services:a.svcH1, service:a.detail.name };
+  const graph = [org, {
+    "@type": PAGE_TYPE[page],
+    name: PAGE_NAME[page],
+    isPartOf: { "@id": location.origin + "/#organization" }
+  }, {
+    "@type":"BreadcrumbList",
+    itemListElement:[
+      {"@type":"ListItem", position:1, name:"Home", item: location.origin + "/"},
+      {"@type":"ListItem", position:2,
+       name: {about:"About", contact:"Contact", services:a.svcH1, service:a.svcH1}[page],
+       item: page==="service" ? location.origin+"/services" : undefined},
+      ...(page==="service" ? [{"@type":"ListItem", position:3, name:a.detail.name}] : [])
+    ]
+  }];
+
+  /* Service detail: the procedure/service itself, plus its offer */
+  if(page === "service"){
+    const d = a.detail;
+    graph.push({
+      "@type": v === "clinic" ? "MedicalProcedure" : "Service",
+      name: d.name,
+      description: d.answer,
+      ...(v === "clinic" ? { procedureType:"https://schema.org/NoninvasiveProcedure", howPerformed: d.steps.map(x=>x[1]).join(" ") } : {}),
+      provider: { "@id": location.origin + "/#organization" },
+      areaServed: c.locations.map(l=>l[1])
+    });
+  }
+
+  /* Service listing: an ItemList of everything offered */
+  if(page === "services"){
+    graph.push({ "@type":"ItemList", itemListElement: c.services.map(([t,desc],i)=>({
+      "@type":"ListItem", position:i+1, name:t, description:desc })) });
+  }
+
+  const faqs = { about:a.aboutFaq, contact:a.contactFaq, services:c.faq, service:a.detail.faq }[page];
+  graph.push({ "@type":"FAQPage", mainEntity: faqs.map(([q,ans])=>({
+    "@type":"Question", name:q, acceptedAnswer:{ "@type":"Answer", text:ans }
+  })) });
+
+  if(page === "about"){
+    graph.push(...c.team.map(([n,cred,role,bio])=>({
+      "@type": v === "clinic" ? "Physician" : "Person",
+      name:n, honorificSuffix:cred, jobTitle:role, description:bio,
+      worksFor:{ "@id": location.origin + "/#organization" }
+    })));
+  }
+
+  let el = document.getElementById("ld-json");
+  if(!el){ el = document.createElement("script"); el.type="application/ld+json"; el.id="ld-json"; document.head.appendChild(el); }
+  el.textContent = JSON.stringify({ "@context":"https://schema.org", "@graph":graph }, null, 2);
+}
+</script>
+
+<script>
+const CHECK_SVG = '<span class="mark"><svg viewBox="0 0 12 12"><path d="M2 6.3l2.6 2.6L10 3.4"/></svg></span>';
+const _coreService = render;
+render = function(v){
+  _coreService(v);
+  const c = CONTENT[v], a = PAGES[v], d = a.detail;
+  const n = d.name;
+
+  set("dName", n); set("dName2", n); set("dName3", n); set("dCat", d.cat);
+  set("dLede", d.lede); set("dAnswer", d.answer);
+  set("dOverview", d.overview.map(function(x){return '<p>'+x+'</p>';}).join(""));
+  set("dFormHeading", "Enquire about " + n.toLowerCase());
+  set("formSub2", a.formSub2);
+
+  set("dStepsHeading", "How " + n.toLowerCase() + " works");
+  set("dStepsIntro", "Explained at every step, so you know what happens before committing to anything.");
+  set("dSuitHeading", "Who this is for");
+  set("dSuitIntro", n + " is most often considered for the concerns below. Suitability is confirmed at your first appointment.");
+  set("dReasonsHeading", "Six reasons people choose this");
+  set("dTeamHeading", a.teamLine);
+  set("dTeamIntro", a.teamLineSub);
+  set("dFaqHeading", n + ", answered");
+  set("dCtaHeading", "Book your " + n.toLowerCase() + " appointment");
+
+  set("dHeroFacts", d.facts.slice(0,3).map(function(f){
+    return '<div class="herofact" data-field="service.fact"><span>'+f[0]+'</span><b>'+f[1]+'</b></div>';
+  }).join(""));
+
+  set("dWork", a.dWhatWorks.map(function(t){
+    return '<li data-field="service.whatWorksItem"><span>'+t+'</span></li>';
+  }).join(""));
+  set("dWorkCount", a.dWhatWorks.length + " points");
+  set("dSpecLink", a.specLink);
+
+  set("dSteps", d.steps.map(function(x){
+    return '<article class="stepcard" data-field="service.step">'+
+      '<h3 data-field="service.step.title">'+x[0]+'</h3>'+
+      '<p data-field="service.step.body">'+x[1]+'</p></article>';
+  }).join(""));
+
+  set("dChips", a.dConcerns.map(function(t){
+    return '<span class="concernchip" data-field="service.concern">'+t+'</span>';
+  }).join(""));
+
+  set("dReasonCards", a.dReasons.map(function(x){
+    return '<article class="reasoncard" data-field="service.reason">'+
+      '<div class="reasoncard-icon" data-field="service.reason.icon"><svg viewBox="0 0 24 24">'+(ICONS[x[0]]||ICONS.shield)+'</svg></div>'+
+      '<h3 data-field="service.reason.title">'+x[1]+'</h3>'+
+      '<p data-field="service.reason.body">'+x[2]+'</p></article>';
+  }).join(""));
+
+  set("dCaution",   d.caution.map(function(t){return '<li data-field="service.considerationItem">'+CHECK_SVG+'<span>'+t+'</span></li>';}).join(""));
+  set("dAftercare", d.aftercare.map(function(t){return '<li data-field="service.aftercareItem">'+CHECK_SVG+'<span>'+t+'</span></li>';}).join(""));
+
+  set("docRows", c.team.map(function(m){
+    var name=m[0], cred=m[1], role=m[2], photo=m[5];
+    var initials = initialsOf(name);
+    return '<a class="docrow" href="member.html" data-field="service.practitioner">'+
+      '<div class="media" data-field="team.member.photo" data-img="team.member.photo" data-dims="800 × 1000" '+
+      'data-initials="'+initials+'" data-alt="'+name+'"'+(photo?' data-src="'+photo+'"':'')+'></div>'+
+      '<div><span class="docrow-name" data-field="team.member.name">'+name+'</span>'+
+      '<span class="docrow-role" data-field="team.member.role">'+role+'</span>'+
+      '<span class="docrow-meta" data-field="team.member.credentials">'+cred+'</span></div></a>';
+  }).join(""));
+
+  set("dFaqItems", d.faq.map(function(x,i){
+    return '<details data-field="faq.item"'+(i===0?' open':'')+'><summary data-field="faq.question">'+x[0]+
+      '</summary><div class="answer" data-field="faq.answer">'+x[1]+'</div></details>';
+  }).join(""));
+
+  set("dRelated", d.related.map(function(i){
+    var sv=c.services[i];
+    return '<article class="card" data-field="service.relatedCard">'+
+      '<div class="media ratio-thumb" data-field="service.image" data-img="service.image" data-dims="900 × 600"></div>'+
+      '<div class="card-body"><span class="card-meta">'+a.serviceCats[i]+'</span>'+
+      '<h3 style="font-size:var(--step-1)">'+sv[0]+'</h3><p>'+sv[1]+'</p>'+
+      '<div class="card-foot"><a class="linkarrow" href="./service.html">Learn more</a></div></div></article>';
+  }).join(""));
+
+  set("nextStepItems", a.nextSteps.map(function(x){return '<li>'+x+'</li>';}).join(""));
+  set("hoursRows", c.locations.map(function(l){return '<tr><th>'+l[0]+'</th><td>'+l[3]+'</td></tr>';}).join(""));
+
+  document.querySelectorAll("[data-form-slot]").forEach(renderFormSlot);
+  paintMedia();
+  document.querySelectorAll("[data-slider]").forEach(initSlider);
+  writeSchema(v,"service");
+};
+render(document.documentElement.dataset.vertical||"clinic");
+</script>
+</body>
+</html>
