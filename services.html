@@ -809,9 +809,10 @@ body.annotate [data-field]:hover::before{content:attr(data-field); position:abso
   .contact-layout{grid-template-columns:1.3fr .7fr; gap:2.5rem}
   .timeline{grid-template-columns:1fr}
 }
+</style>
+<style id="sitelinks">
 /* site-wide page links */
 @media (min-width:1000px){ .footer-grid{grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr} }
-#menu-pages .menu-grid{grid-template-columns:repeat(3,1fr)}
 .nav-link[aria-current="page"]{color:var(--brand)}
 </style>
 </head>
@@ -847,10 +848,6 @@ body.annotate [data-field]:hover::before{content:attr(data-field); position:abso
         <li><a class="nav-link" href="about.html" data-field="nav.item">About</a></li>
         <li><a class="nav-link" href="blog.html" data-field="nav.item">Advice</a></li>
         <li><a class="nav-link" href="contact.html" data-field="nav.item">Contact</a></li>
-        <li><button class="nav-link has-menu" aria-expanded="false" aria-controls="menu-pages">
-          All pages
-          <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-        </button></li>
       </ul>
     </nav>
     <div class="header-actions">
@@ -878,9 +875,6 @@ body.annotate [data-field]:hover::before{content:attr(data-field); position:abso
         <a class="btn btn-secondary btn-sm" href="contact.html#locations">All locations</a>
       </div>
     </div>
-    <div class="menu" id="menu-pages" data-open="false" style="max-width:640px; left:auto">
-      <div class="menu-grid"><a class="menu-item" href="index.html"><strong>Home</strong><span>Homepage overview</span></a><a class="menu-item" href="about.html"><strong>About</strong><span>Our story and values</span></a><a class="menu-item" href="services.html"><strong>Services</strong><span>All treatments</span></a><a class="menu-item" href="service.html"><strong>Service detail</strong><span>Single treatment page</span></a><a class="menu-item" href="team.html"><strong>Team</strong><span>Meet the clinicians</span></a><a class="menu-item" href="member.html"><strong>Team member</strong><span>Individual profile</span></a><a class="menu-item" href="results.html"><strong>Results</strong><span>Outcomes and case studies</span></a><a class="menu-item" href="gallery.html"><strong>Gallery</strong><span>Photos of the clinic</span></a><a class="menu-item" href="blog.html"><strong>Advice</strong><span>Blog and articles</span></a><a class="menu-item" href="blog-details.html"><strong>Article</strong><span>Single blog post</span></a><a class="menu-item" href="contact.html"><strong>Contact</strong><span>Get in touch & locations</span></a></div>
-    </div>
   </div>
 </header>
 
@@ -899,7 +893,6 @@ body.annotate [data-field]:hover::before{content:attr(data-field); position:abso
       <a href="about.html">About</a>
       <a href="blog.html">Advice</a>
       <a href="contact.html">Contact</a>
-      <details><summary>All pages</summary><div><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="service.html">Service detail</a><a href="team.html">Team</a><a href="member.html">Team member</a><a href="results.html">Results</a><a href="gallery.html">Gallery</a><a href="blog.html">Advice</a><a href="blog-details.html">Article</a><a href="contact.html">Contact</a></div></details>
     </div>
     <div class="drawer-foot">
       <a class="btn btn-primary btn-block" href="index.html#book" data-content="heroCta1"></a>
@@ -1016,7 +1009,7 @@ body.annotate [data-field]:hover::before{content:attr(data-field); position:abso
       </div>
       <div><h6 data-content="navServices"></h6><ul data-content="footerServices"></ul></div>
       <div><h6>Locations</h6><ul data-content="footerLocations"></ul></div>
-      <div><h6>Pages</h6><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="services.html">Services</a></li><li><a href="service.html">Service detail</a></li><li><a href="team.html">Team</a></li><li><a href="member.html">Team member</a></li><li><a href="results.html">Results</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="blog.html">Advice</a></li><li><a href="blog-details.html">Article</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div><h6>Pages</h6><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="services.html">Services</a></li><li><a href="service.html">Service detail</a></li><li><a href="team.html">Team</a></li><li><a href="member.html">Team member</a></li><li><a href="results.html">Results</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="blog.html">Advice</a></li><li><a href="blog-details.html">Article</a></li><li><a href="faq.html">FAQs</a></li><li><a href="contact.html">Contact</a></li><li><a href="thank-you.html">Thank you</a></li></ul></div>
       <div>
         <h6>Contact</h6>
         <address data-field="footer.nap" data-content="footerNap"></address>
@@ -2088,7 +2081,7 @@ function renderFormSlot(el){
 function nativeFormHTML(){
   const c = CONTENT[document.documentElement.dataset.vertical];
   return `
-  <form class="formgrid" onsubmit="event.preventDefault();alert('Demo only — posts to /api/lead in production.')">
+  <form class="formgrid" onsubmit="event.preventDefault();window.location='thank-you.html'">
     <div class="formgrid-2">
       <div class="field"><label for="f-name">Full name</label><input id="f-name" required placeholder="Your name"></div>
       <div class="field"><label for="f-phone">Phone number</label><input id="f-phone" type="tel" required placeholder="Mobile number"></div>
